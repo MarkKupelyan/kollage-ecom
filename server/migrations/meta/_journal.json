@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1713715995756,
+      "tag": "0000_worthless_power_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1713826063259,
+      "tag": "0001_dapper_talisman",
+      "breakpoints": true
+    }
+  ]
+}
