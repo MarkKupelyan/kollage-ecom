@@ -15,6 +15,13 @@
       "when": 1713826063259,
       "tag": "0001_dapper_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1714822396563,
+      "tag": "0002_watery_hawkeye",
+      "breakpoints": true
     }
   ]
 }

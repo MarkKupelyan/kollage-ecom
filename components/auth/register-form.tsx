@@ -10,46 +10,68 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { cn } from "@/lib/utils";
-import { AuthCard } from "./auth-card";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "@/app/types/login-schema";
+import { AuthCard } from "./auth-card";
+import { RegisterSchema } from "@/app/types/register-schema";
+import * as z from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import * as z from "zod";
-import { emailSignIn } from "@/server/actions/email-signin";
 import { useAction } from "next-safe-action/hooks";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { emailRegister } from "@/server/actions/email-register";
+import { FormSuccess } from "./form-success";
+import { FormError } from "./form-error";
 
-export const LoginForm = () => {
-  const form = useForm({
-    resolver: zodResolver(LoginSchema),
+export const RegisterForm = () => {
+  const form = useForm<z.infer<typeof RegisterSchema>>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       email: "",
       password: "",
+      name: "",
     },
   });
   const [error, setError] = useState("");
-
-  const { execute, status } = useAction(emailSignIn, {
-    onSuccess(data) {},
+  const [success, setSuccess] = useState("");
+  const { execute, status } = useAction(emailRegister, {
+    onSuccess(data) {
+      if (data.error) setError(data.error);
+      if (data.success) setSuccess(data.success);
+    },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
+    console.log("before server action runs");
     execute(values);
   };
+
   return (
     <AuthCard
-      cardTitle="Welcome back!"
-      backButtonHref="/auth/register"
-      backButtonLabel="Create a new account"
+      cardTitle="Create an account 🎉"
+      backButtonHref="/auth/login"
+      backButtonLabel="Already have an account?"
       showSocials
     >
       <div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="kollage7" type="text" />
+                    </FormControl>
+                    <FormDescription />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="email"
@@ -78,7 +100,7 @@ export const LoginForm = () => {
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="*******"
+                        placeholder="*********"
                         type="password"
                         autoComplete="current-password"
                       />
@@ -88,7 +110,9 @@ export const LoginForm = () => {
                   </FormItem>
                 )}
               />
-              <Button size={"sm"} className="px-0" variant={"link"} asChild>
+              <FormSuccess message={success} />
+              <FormError message={error} />
+              <Button size={"sm"} variant={"link"} asChild>
                 <Link href="/auth/reset">Forgot your password</Link>
               </Button>
             </div>
@@ -99,7 +123,7 @@ export const LoginForm = () => {
                 status === "executing" ? "animate-pulse" : ""
               )}
             >
-              {"Login"}
+              Register
             </Button>
           </form>
         </Form>
