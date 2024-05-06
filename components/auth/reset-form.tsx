@@ -12,7 +12,6 @@ import {
 } from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthCard } from "./auth-card";
-import { RegisterSchema } from "@/app/types/register-schema";
 import * as z from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -20,38 +19,42 @@ import Link from "next/link";
 import { useAction } from "next-safe-action/hooks";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { emailRegister } from "@/server/actions/email-register";
 import { FormSuccess } from "./form-success";
 import { FormError } from "./form-error";
+import { NewPasswordSchema } from "@/app/types/new-password-schema";
+import { newPassword } from "@/server/actions/new-password";
+import { ResetSchema } from "@/app/types/reset-schema";
+import { reset } from "@/server/actions/password-reset";
 
-export const RegisterForm = () => {
-  const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
+export default function ResetForm() {
+  const form = useForm<z.infer<typeof ResetSchema>>({
+    resolver: zodResolver(ResetSchema),
     defaultValues: {
       email: "",
-      password: "",
-      name: "",
-    },
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const { execute, status } = useAction(emailRegister, {
-    onSuccess(data) {
-      if (data.error) setError(data.error);
-      if (data.success) setSuccess(data.success);
     },
   });
 
-  const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
-    console.log("before server action runs");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const { execute, status } = useAction(reset, {
+    onSuccess(data) {
+      if (data?.error) setError(data.error);
+      if (data?.success) {
+        setSuccess(data.success);
+      }
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof ResetSchema>) => {
     execute(values);
   };
 
   return (
     <AuthCard
-      cardTitle="Create an account 🎉"
+      cardTitle="Forgot your password? "
       backButtonHref="/auth/login"
-      backButtonLabel="Already have an account?"
+      backButtonLabel="Back to login"
       showSocials
     >
       <div>
@@ -60,53 +63,17 @@ export const RegisterForm = () => {
             <div>
               <FormField
                 control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Kollage jewellery"
-                        type="text"
-                      />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="kollage7@gmail.com"
-                        type="email"
-                        autoComplete="email"
-                      />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="*********"
-                        type="password"
-                        autoComplete="current-password"
+                        placeholder="kollage7@gmail.com"
+                        type="email"
+                        disabled={status === "executing"}
+                        autoComplete="email"
                       />
                     </FormControl>
                     <FormDescription />
@@ -127,11 +94,11 @@ export const RegisterForm = () => {
                 status === "executing" ? "animate-pulse" : ""
               )}
             >
-              Register
+              Reset Password
             </Button>
           </form>
         </Form>
       </div>
     </AuthCard>
   );
-};
+}
