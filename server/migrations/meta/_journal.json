@@ -22,6 +22,13 @@
       "when": 1714822396563,
       "tag": "0002_watery_hawkeye",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1716651653348,
+      "tag": "0003_clumsy_lizard",
+      "breakpoints": true
     }
   ]
 }

@@ -8,9 +8,13 @@ import {
   pgEnum,
   unique,
   PgTable,
+  serial,
+  real,
+  index,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "next-auth/adapters";
 import { createId } from "@paralleldrive/cuid2";
+import { InferSelectModel, relations } from "drizzle-orm";
 
 export const RoleEnum = pgEnum("roles", ["user", "admin"]);
 
@@ -26,6 +30,7 @@ export const users = pgTable("user", {
   password: text("password"),
   twoFactorEnabled: boolean("twoFactorEnabled").default(false),
   role: RoleEnum("roles").default("user"),
+  customerID: text("customerID"),
 });
 
 export const accounts = pgTable(
@@ -96,3 +101,11 @@ export const twoFactorTokens = pgTable(
     compoundKey: primaryKey({ columns: [vt.id, vt.token] }),
   })
 );
+
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  description: text("description").notNull(),
+  title: text("title").notNull(),
+  created: timestamp("created").defaultNow(),
+  price: real("price").notNull(),
+});

@@ -1,4 +1,6 @@
 {
+  "id": "54f0c9ba-a7f1-4512-9e2a-bac12405fdd9",
+  "prevId": "04f4a0e2-4b15-4475-bc2c-177b5108b9bd",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -78,15 +80,15 @@
         "account_userId_user_id_fk": {
           "name": "account_userId_user_id_fk",
           "tableFrom": "account",
+          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
-          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -184,6 +186,47 @@
       },
       "uniqueConstraints": {}
     },
+    "public.products": {
+      "name": "products",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created": {
+          "name": "created",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "price": {
+          "name": "price",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "public.two_factor_tokens": {
       "name": "two_factor_tokens",
       "schema": "",
@@ -224,15 +267,15 @@
         "two_factor_tokens_userID_user_id_fk": {
           "name": "two_factor_tokens_userID_user_id_fk",
           "tableFrom": "two_factor_tokens",
+          "tableTo": "user",
           "columnsFrom": [
             "userID"
           ],
-          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -296,9 +339,16 @@
         "roles": {
           "name": "roles",
           "type": "roles",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
           "default": "'user'"
+        },
+        "customerID": {
+          "name": "customerID",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -319,10 +369,8 @@
   },
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "id": "04f4a0e2-4b15-4475-bc2c-177b5108b9bd",
-  "prevId": "ec5fa03e-b1ce-4f90-9af6-c6b83eb427a8"
+    "tables": {}
+  }
 }
