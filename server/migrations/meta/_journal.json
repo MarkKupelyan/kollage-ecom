@@ -36,6 +36,13 @@
       "when": 1716672251015,
       "tag": "0004_mysterious_slapstick",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1716753279193,
+      "tag": "0005_quick_lightspeed",
+      "breakpoints": true
     }
   ]
 }
