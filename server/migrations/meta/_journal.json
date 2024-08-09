@@ -43,6 +43,41 @@
       "when": 1716753279193,
       "tag": "0005_quick_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1717068036039,
+      "tag": "0006_absent_miracleman",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1717338883580,
+      "tag": "0007_cloudy_colleen_wing",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1717339143433,
+      "tag": "0008_nostalgic_quicksilver",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1717339660680,
+      "tag": "0009_lazy_martin_li",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1723047251011,
+      "tag": "0010_worried_paladin",
+      "breakpoints": true
     }
   ]
 }

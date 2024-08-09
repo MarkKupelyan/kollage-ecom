@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { toast } from "sonner"; // Import toastu
 
 export type Variant = {
   variantID: number;
@@ -12,6 +13,7 @@ export type CartItem = {
   id: number;
   variant: Variant;
   price: number;
+  stock_quantity: number; // Přidání vlastnosti stock_quantity
 };
 
 export type CartState = {
@@ -38,22 +40,37 @@ export const useCartStore = create<CartState>()(
       setCheckoutProgress: (val) => set((state) => ({ checkoutProgress: val })),
       addToCart: (item) =>
         set((state) => {
+          if (item.stock_quantity <= 0) {
+            toast.error("Product is out of stock");
+            return state;
+          }
+
           const existingItem = state.cart.find(
             (cartItem) => cartItem.variant.variantID === item.variant.variantID
           );
+
           if (existingItem) {
+            const newQuantity =
+              existingItem.variant.quantity + item.variant.quantity;
+
+            if (newQuantity > item.stock_quantity) {
+              toast.error("Not enough stock available");
+              return state;
+            }
+
             const updatedCart = state.cart.map((cartItem) => {
               if (cartItem.variant.variantID === item.variant.variantID) {
                 return {
                   ...cartItem,
                   variant: {
                     ...cartItem.variant,
-                    quantity: cartItem.variant.quantity + item.variant.quantity,
+                    quantity: newQuantity,
                   },
                 };
               }
               return cartItem;
             });
+
             return { cart: updatedCart };
           } else {
             return {

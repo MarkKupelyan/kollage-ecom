@@ -1,17 +1,17 @@
 "use server";
 
+import { ProductSchema } from "@/app/types/product-schema";
 import { createSafeActionClient } from "next-safe-action";
 import { db } from "..";
 import { eq } from "drizzle-orm";
 import { products } from "../schema";
 import { revalidatePath } from "next/cache";
-import { ProductSchema } from "@/app/types/product-schema";
 
 const action = createSafeActionClient();
 
 export const createProduct = action(
   ProductSchema,
-  async ({ description, price, title, id }) => {
+  async ({ description, price, title, stock_quantity, id }) => {
     try {
       //EDIT MODE
       if (id) {
@@ -21,7 +21,7 @@ export const createProduct = action(
         if (!currentProduct) return { error: "Product not found" };
         const editedProduct = await db
           .update(products)
-          .set({ description, price, title })
+          .set({ description, price, title, stock_quantity })
           .where(eq(products.id, id))
           .returning();
         revalidatePath("/dashboard/products");
@@ -30,7 +30,7 @@ export const createProduct = action(
       if (!id) {
         const newProduct = await db
           .insert(products)
-          .values({ description, price, title })
+          .values({ description, price, title, stock_quantity })
           .returning();
         revalidatePath("/dashboard/products");
         return { success: `Product ${newProduct[0].title} has been created` };

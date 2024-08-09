@@ -6,6 +6,7 @@ import Nav from "@/components/navigation/nav";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import Toaster from "@/components/ui/toaster";
+import Footer from "@/components/footer/footer";
 
 const roboto = Roboto({
   weight: ["400", "500", "700", "900"],
@@ -26,10 +27,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={roboto.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex-grow px-6 md:px-12 mx-auto max-w-8xl">
+          <div className="flex-grow md:px-0 mx-auto max-w-8xl">
             <Nav />
             <Toaster />
             {children}
+            <Footer />
           </div>
         </ThemeProvider>
       </body>

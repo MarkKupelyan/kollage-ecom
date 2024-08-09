@@ -38,6 +38,7 @@ export default function ProductForm() {
       title: "",
       description: "",
       price: 0,
+      stock_quantity: 0,
     },
     mode: "onChange",
   });
@@ -59,6 +60,7 @@ export default function ProductForm() {
         form.setValue("title", data.success.title);
         form.setValue("description", data.success.description);
         form.setValue("price", data.success.price);
+        form.setValue("stock_quantity", data.success.stock_quantity);
         form.setValue("id", id);
       }
     }
@@ -91,6 +93,8 @@ export default function ProductForm() {
   });
 
   async function onSubmit(values: zProductSchema) {
+    // Konverze hodnoty stock_quantity na číslo
+    values.stock_quantity = Number(values.stock_quantity);
     execute(values);
   }
 
@@ -153,6 +157,25 @@ export default function ProductForm() {
                         min={0}
                       />
                     </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="stock_quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Stock Quantity</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      placeholder="Available stock"
+                      min={0}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

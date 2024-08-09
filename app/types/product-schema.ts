@@ -11,6 +11,9 @@ export const ProductSchema = z.object({
   price: z.coerce
     .number({ invalid_type_error: "Price must be a number" })
     .positive({ message: "Price must be a positive number" }),
+  stock_quantity: z.number().int().nonnegative({
+    message: "Stock quantity must be a non-negative integer",
+  }),
 });
 
 export type zProductSchema = z.infer<typeof ProductSchema>;
