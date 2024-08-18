@@ -24,7 +24,12 @@ export default function Filter() {
       urlParams.delete("tag");
     }
     router.push(`?${urlParams.toString()}`);
-    toggleFilterPanel(); // Close the panel after setting the filter
+
+    // Close all dropdowns after selecting a filter
+    setIsCategoryOpen(false);
+    setIsMaterialOpen(false);
+    setIsColorOpen(false);
+    setIsPriceOpen(false);
   };
 
   const resetFilters = () => {
