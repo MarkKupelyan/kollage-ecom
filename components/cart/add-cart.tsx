@@ -1,57 +1,49 @@
 "use client";
 
 import { useCartStore } from "@/lib/client-store";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { redirect, useSearchParams } from "next/navigation";
 
-export default function AddCart() {
+interface AddCartProps {
+  stockQuantity: number;
+  productID: number;
+  variantID: number;
+  title: string;
+  type: string;
+  price: number;
+  image: string;
+  disabled: boolean;
+}
+
+export default function AddCart({
+  stockQuantity,
+  productID,
+  variantID,
+  title,
+  type,
+  price,
+  image,
+  disabled,
+}: AddCartProps) {
   const { addToCart } = useCartStore();
   const [quantity, setQuantity] = useState(1);
-  const params = useSearchParams();
-  const [stockQuantity, setStockQuantity] = useState(0);
-
-  useEffect(() => {
-    const id = Number(params.get("id"));
-    const productID = Number(params.get("productID"));
-    const title = params.get("title") || ""; // Ošetření null hodnoty
-    const type = params.get("type") || ""; // Ošetření null hodnoty
-    const price = Number(params.get("price") || 0); // Ošetření null hodnoty
-    const image = params.get("image") || ""; // Ošetření null hodnoty
-    const stock_quantity = parseInt(params.get("stock_quantity") || "0", 10);
-
-    console.log("Params from URL:", params.toString());
-    console.log("Parsed stock_quantity:", stock_quantity);
-
-    if (!id || !productID || !title || !type || !price || !image) {
-      toast.error("Product not found");
-      return redirect("/");
-    }
-
-    if (stock_quantity !== stockQuantity) {
-      setStockQuantity(stock_quantity);
-    }
-
-    console.log("Stock Quantity after setting state:", stockQuantity);
-  }, [params]);
-
-  console.log("Params from URL:", params.toString());
 
   const handleAddToCart = () => {
+    console.log("Current Stock Quantity:", stockQuantity); // Debugging line
     if (stockQuantity <= 0) {
       toast.error("Product is out of stock");
       return;
     }
     toast.success(`Added to your cart!`);
     addToCart({
-      id: Number(params.get("productID")),
-      variant: { variantID: Number(params.get("id")), quantity },
-      name: (params.get("title") || "") + " " + (params.get("type") || ""),
-      price: Number(params.get("price") || 0),
-      image: params.get("image") || "", // Ošetření null hodnoty
-      stock_quantity: stockQuantity, // Přidání stock_quantity do košíku
+      id: productID,
+      variant: { variantID, quantity },
+      name: `${title} ${type}`,
+      price,
+      image,
+      stock_quantity: stockQuantity, // Use the passed stock_quantity
     });
   };
 
@@ -66,7 +58,7 @@ export default function AddCart() {
           }}
           variant={"secondary"}
           className="text-primary"
-          disabled={stockQuantity <= 0} // Deaktivace tlačítka pro snížení množství, pokud je vyprodáno
+          disabled={stockQuantity <= 0} // Disable button if out of stock
         >
           <Minus size={18} strokeWidth={3} />
         </Button>
@@ -75,21 +67,21 @@ export default function AddCart() {
         </Button>
         <Button
           onClick={() => {
-            setQuantity(quantity + 1);
+            if (quantity < stockQuantity) {
+              setQuantity(quantity + 1);
+            }
           }}
           variant={"secondary"}
           className="text-primary"
-          disabled={stockQuantity <= 0} // Deaktivace tlačítka pro zvýšení množství, pokud je vyprodáno
+          disabled={stockQuantity <= 0} // Disable button if out of stock
         >
           <Plus size={18} strokeWidth={3} />
         </Button>
       </div>
       <Button
         onClick={handleAddToCart}
-        disabled={stockQuantity <= 0} // Tlačítko je deaktivováno, pokud je stock_quantity 0 nebo méně
-        className={`${
-          stockQuantity <= 0 ? "cursor-not-allowed opacity-50" : ""
-        }`}
+        disabled={disabled} // Pass the 'disabled' prop here
+        className={`${disabled ? "cursor-not-allowed opacity-50" : ""}`}
       >
         Add to cart
       </Button>

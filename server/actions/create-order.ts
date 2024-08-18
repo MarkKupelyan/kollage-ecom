@@ -30,6 +30,7 @@ export const createOrder = action(
       }
     }
 
+    // Vytvoření objednávky, ale NE aktualizace zásob
     const order = await db
       .insert(orders)
       .values({
@@ -40,7 +41,7 @@ export const createOrder = action(
       })
       .returning();
 
-    // Vytvoření položek objednávky a aktualizace množství na skladě
+    // Vytvoření položek objednávky (bez změny zásob)
     for (const item of orderProducts) {
       await db.insert(orderProduct).values({
         quantity: item.quantity,
@@ -48,26 +49,44 @@ export const createOrder = action(
         productID: item.productID,
         productVariantID: item.variantID,
       });
-
-      // Získání aktuálního množství na skladě
-      const currentProduct = await db.query.products.findFirst({
-        where: eq(products.id, item.productID),
-      });
-
-      // Kontrola, zda currentProduct není undefined
-      if (!currentProduct) {
-        return {
-          error: `Product with ID ${item.productID} not found during update`,
-        };
-      }
-
-      // Aktualizace množství na skladě
-      await db
-        .update(products)
-        .set({ stock_quantity: currentProduct.stock_quantity - item.quantity })
-        .where(eq(products.id, item.productID));
     }
 
-    return { success: "Order has been added" };
+    // Zde by měl proběhnout proces platby (např. přes Stripe, PayPal, atd.)
+    const paymentSuccessful = true; // Toto je jen příklad. Použij skutečnou kontrolu platby.
+
+    if (paymentSuccessful) {
+      // Pokud je platba úspěšná, aktualizuj zásoby
+      for (const item of orderProducts) {
+        const currentProduct = await db.query.products.findFirst({
+          where: eq(products.id, item.productID),
+        });
+
+        if (!currentProduct) {
+          return {
+            error: `Product with ID ${item.productID} not found during update`,
+          };
+        }
+        console.log(
+          `Updating stock for ${currentProduct.title}. Current stock: ${currentProduct.stock_quantity}. Quantity to subtract: ${item.quantity}`
+        );
+
+        await db
+          .update(products)
+          .set({
+            stock_quantity: currentProduct.stock_quantity - item.quantity,
+          })
+          .where(eq(products.id, item.productID));
+        console.log(
+          `New stock for ${currentProduct.title}: ${
+            currentProduct.stock_quantity - item.quantity
+          }`
+        );
+      }
+
+      return { success: "Order has been added and stock updated" };
+    } else {
+      // Pokud platba selže, vrať chybovou zprávu
+      return { error: "Payment failed, order was not processed" };
+    }
   }
 );

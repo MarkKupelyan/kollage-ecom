@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { useCartStore } from "@/lib/client-store";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import formatPrice from "@/lib/format-price";
 import Image from "next/image";
 import { MinusCircle, PlusCircle } from "lucide-react";
@@ -18,26 +18,11 @@ import Lottie from "lottie-react";
 import emptyCart from "@/public/empty-box.json";
 import { createId } from "@paralleldrive/cuid2";
 import { Button } from "../ui/button";
-import { toast } from "react-toastify"; // Import pro zobrazení zpráv
-import { createOrder } from "@/server/actions/create-order"; // Správný import createOrder
-
-// Definice typu pro CartItem
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  stock_quantity: number; // Přidání vlastnosti stock_quantity
-  variant: {
-    quantity: number;
-    variantID: number;
-  };
-}
 
 export default function CartItems() {
   const { cart, addToCart, removeFromCart, setCheckoutProgress } =
     useCartStore();
-  const [loading, setLoading] = useState(false); // Přidání stavu pro načítání
+
   const totalPrice = useMemo(() => {
     return cart.reduce((acc, item) => {
       return acc + item.price! * item.variant.quantity;
@@ -49,50 +34,6 @@ export default function CartItems() {
       return { letter, id: createId() };
     });
   }, [totalPrice]);
-
-  // Funkce pro přidání produktu do košíku s kontrolou zásob
-  const handleAddToCart = async (item: CartItem) => {
-    if (item.stock_quantity <= 0) {
-      toast.error("This product is out of stock.");
-      return;
-    }
-    addToCart({
-      ...item,
-      variant: {
-        quantity: 1,
-        variantID: item.variant.variantID,
-      },
-    });
-  };
-
-  // Funkce pro zpracování objednávky
-  const handleCheckout = async () => {
-    setLoading(true);
-    const orderData = {
-      userID: "currentUserID", // replace with actual user ID
-      total: totalPrice,
-      status: "pending",
-      receiptURL: "",
-      paymentIntentID: "",
-      products: cart.map((item) => ({
-        productID: item.id,
-        quantity: item.variant.quantity,
-        variantID: item.variant.variantID,
-      })),
-    };
-
-    // Kontrola skladových zásob před platbou
-    const stockCheckResponse = await createOrder(orderData);
-    if (stockCheckResponse.data?.error) {
-      setLoading(false);
-      toast.error(stockCheckResponse.data.error);
-      return;
-    }
-
-    // Pokud jsou zásoby v pořádku, přesměrujeme uživatele na stránku platby
-    setCheckoutProgress("payment-page");
-    setLoading(false);
-  };
 
   return (
     <motion.div className="flex flex-col items-center">
@@ -122,7 +63,7 @@ export default function CartItems() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {cart.map((item: CartItem) => (
+              {cart.map((item) => (
                 <TableRow key={(item.id + item.variant.variantID).toString()}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{formatPrice(item.price)}</TableCell>
@@ -158,7 +99,15 @@ export default function CartItems() {
                       </p>
                       <PlusCircle
                         className="cursor-pointer hover:text-muted-foreground duration-300 transition-colors"
-                        onClick={() => handleAddToCart(item)}
+                        onClick={() => {
+                          addToCart({
+                            ...item,
+                            variant: {
+                              quantity: 1,
+                              variantID: item.variant.variantID,
+                            },
+                          });
+                        }}
                         size={14}
                       />
                     </div>
@@ -188,11 +137,13 @@ export default function CartItems() {
         </AnimatePresence>
       </motion.div>
       <Button
-        onClick={handleCheckout} // Přidání funkce handleCheckout
+        onClick={() => {
+          setCheckoutProgress("payment-page");
+        }}
         className="max-w-md w-full"
-        disabled={cart.length === 0 || loading} // Zakázat tlačítko při načítání
+        disabled={cart.length === 0}
       >
-        {loading ? "Processing..." : "Checkout"}
+        Checkout
       </Button>
     </motion.div>
   );
