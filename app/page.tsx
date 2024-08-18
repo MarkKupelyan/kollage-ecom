@@ -23,17 +23,17 @@ export default async function Home() {
     <main className="">
       <Slider />
       <Algolia />
-      <div className="py-4">
+      <div className="py-4 px-8">
         <h1 className="text-3xl mt-8 mx-[41%]">Product catalog</h1>
         <ProductList />
       </div>
-      <div className="py-4">
+      <div className="py-4 px-8">
         <h1 className="text-2xl mt-24 px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 mb-12">
           Categories
         </h1>
         <ProductList />
       </div>
-      <div className="py-4">
+      <div className="py-4 px-8">
         <h1 className="text-3xl mt-8 mx-[41%]">New Products</h1>
         <CategoryList />
       </div>

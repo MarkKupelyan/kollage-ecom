@@ -22,16 +22,22 @@ export default function AddCart() {
     const image = params.get("image") || ""; // Ošetření null hodnoty
     const stock_quantity = parseInt(params.get("stock_quantity") || "0", 10);
 
-    console.log("Stock Quantity from Params:", stock_quantity);
+    console.log("Params from URL:", params.toString());
+    console.log("Parsed stock_quantity:", stock_quantity);
 
     if (!id || !productID || !title || !type || !price || !image) {
       toast.error("Product not found");
       return redirect("/");
     }
 
-    // Nastavíme správně stock quantity
-    setStockQuantity(stock_quantity);
+    if (stock_quantity !== stockQuantity) {
+      setStockQuantity(stock_quantity);
+    }
+
+    console.log("Stock Quantity after setting state:", stockQuantity);
   }, [params]);
+
+  console.log("Params from URL:", params.toString());
 
   const handleAddToCart = () => {
     if (stockQuantity <= 0) {

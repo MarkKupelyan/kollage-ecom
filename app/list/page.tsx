@@ -9,7 +9,7 @@ import { db } from "@/server";
 import Slider from "@/components/slider";
 import CategoryList from "@/components/CategoryList";
 
-export default async function ListPage() {
+export default async function Home() {
   const data = await db.query.productVariants.findMany({
     with: {
       variantImages: true,
@@ -18,6 +18,7 @@ export default async function ListPage() {
     },
     orderBy: (productVariants, { desc }) => [desc(productVariants.id)],
   });
+
   return (
     <div className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative">
       {/* CAMPAIGN */}
@@ -35,12 +36,18 @@ export default async function ListPage() {
           <Image src="/woman.png" alt="" fill className="object-contain" />
         </div>
       </div>
-      {/* FILTER */}
-      <Filter />
 
-      {/* PRODUCTS */}
-      <h1 className="mt -12 text-xl font-semibold">Rings For You!</h1>
-      <Products variants={data} />
+      {/* FILTER + PRODUCTS */}
+      <div className="mt-12">
+        {/* FILTER */}
+        <Filter />
+
+        {/* PRODUCTS */}
+        <div className="mt-8">
+          <h1 className="text-xl font-semibold mb-6">Rings For You!</h1>
+          <Products variants={data} />
+        </div>
+      </div>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import Algolia from "../products/algolia";
 export default async function Nav() {
   const session = await auth();
   return (
-    <header className="py-8">
+    <header className="py-8 px-8">
       <nav>
         <ul className="flex justify-between items-center md:gap-8 gap-4">
           <li className="flex flex-1">

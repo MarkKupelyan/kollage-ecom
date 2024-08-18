@@ -3,19 +3,30 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function ProductTags() {
   const router = useRouter();
   const params = useSearchParams();
   const tag = params.get("tag");
 
-  const setFilter = (tag: string) => {
-    if (tag) {
-      router.push(`?tag=${tag}`);
+  const [activeTag, setActiveTag] = useState(tag);
+
+  useEffect(() => {
+    if (tag !== activeTag) {
+      setActiveTag(tag);
     }
-    if (!tag) {
-      router.push("/");
+  }, [tag]);
+
+  const setFilter = (newTag: string) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (newTag) {
+      urlParams.set("tag", newTag);
+    } else {
+      urlParams.delete("tag");
     }
+    router.push(`?${urlParams.toString()}`);
+    setActiveTag(newTag);
   };
 
   return (
@@ -56,6 +67,33 @@ export default function ProductTags() {
         )}
       >
         Purple
+      </Badge>
+      <Badge
+        onClick={() => setFilter("rings")}
+        className={cn(
+          "cursor-pointer hover:opacity-100",
+          tag === "rings" && tag ? "opacity-100" : "opacity-50"
+        )}
+      >
+        Rings
+      </Badge>
+      <Badge
+        onClick={() => setFilter("necklaces")}
+        className={cn(
+          "cursor-pointer hover:opacity-100",
+          tag === "necklaces" && tag ? "opacity-100" : "opacity-50"
+        )}
+      >
+        Necklaces
+      </Badge>
+      <Badge
+        onClick={() => setFilter("earrings")}
+        className={cn(
+          "cursor-pointer hover:opacity-100",
+          tag === "earrings" && tag ? "opacity-100" : "opacity-50"
+        )}
+      >
+        Earrings
       </Badge>
     </div>
   );
