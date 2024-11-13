@@ -85,11 +85,6 @@ export default function AddCart({
       >
         Add to cart
       </Button>
-      {stockQuantity <= 0 ? (
-        <p className="text-red-500 mt-2">Product is currently out of stock</p>
-      ) : (
-        <p className="text-green-500 mt-2">In Stock: {stockQuantity} pieces</p>
-      )}
     </>
   );
 }

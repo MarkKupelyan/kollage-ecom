@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { useCartStore } from "@/lib/client-store";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import formatPrice from "@/lib/format-price";
 import Image from "next/image";
 import { MinusCircle, PlusCircle } from "lucide-react";
@@ -23,11 +23,33 @@ export default function CartItems() {
   const { cart, addToCart, removeFromCart, setCheckoutProgress } =
     useCartStore();
 
+  // Promo kód a stav pro validaci
+  const [promoCode, setPromoCode] = useState("");
+  const [isPromoValid, setIsPromoValid] = useState(false);
+  const [hasTriedPromo, setHasTriedPromo] = useState(false);
+
+  // Funkce pro ověření promo kódu
+  const validatePromoCode = () => {
+    setHasTriedPromo(true); // Nastaví stav, že uživatel zkusil použít promo kód
+    const trimmedCode = promoCode.trim().toUpperCase(); // Ořízne mezery a převede na velká písmena
+    if (trimmedCode === "SLEVA10") {
+      setIsPromoValid(true);
+    } else {
+      setIsPromoValid(false);
+    }
+  };
+
   const totalPrice = useMemo(() => {
-    return cart.reduce((acc, item) => {
+    const baseTotal = cart.reduce((acc, item) => {
       return acc + item.price! * item.variant.quantity;
     }, 0);
-  }, [cart]);
+
+    // Apply 10% discount if the total is above $120
+    const discountedTotal = baseTotal > 140 ? baseTotal * 0.9 : baseTotal;
+
+    // Apply additional promo code discount if valid
+    return isPromoValid ? discountedTotal * 0.9 : discountedTotal;
+  }, [cart, isPromoValid]);
 
   const priceInLetters = useMemo(() => {
     return [...totalPrice.toFixed(2).toString()].map((letter) => {
@@ -118,8 +140,37 @@ export default function CartItems() {
           </Table>
         </div>
       )}
+      {/* Promo kód sekce */}
+      <div className="promo-code-section my-4 relative">
+        <input
+          type="text"
+          value={promoCode}
+          onChange={(e) => setPromoCode(e.target.value)}
+          placeholder="Enter promo code"
+          className="input"
+        />
+        <Button onClick={validatePromoCode} className="ml-2">
+          Apply
+        </Button>
+        {/* Zobrazení zprávy až po kliknutí na tlačítko */}
+        {hasTriedPromo && (
+          <div
+            className="mt-2 absolute top-full left-0"
+            style={{ minHeight: "20px", lineHeight: "20px" }} // Pevná výška pro rezervaci místa
+          >
+            {isPromoValid ? (
+              <p className="text-green-600 text-xs">10% discount applied!</p>
+            ) : (
+              <p className="text-red-600">
+                The code you have entered is not valid or has been deactivated.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+      {/* Celková cena */}
       <motion.div className="flex items-center justify-center relative my-4 overflow-hidden">
-        <span className="text-md">Total: $</span>
+        <span className="text-md py-8">Total: $</span>
         <AnimatePresence mode="popLayout">
           {priceInLetters.map((letter, i) => (
             <motion.div key={letter.id}>

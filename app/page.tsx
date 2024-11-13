@@ -1,15 +1,16 @@
-//import Algolia from "@/components/products/algolia";
+import { db } from "@/server";
+import Slider from "@/components/slider";
 import Algolia from "@/components/products/algolia";
 import ProductTags from "@/components/products/product-tags";
 import Products from "@/components/products/products";
-import { db } from "@/server";
-import Slider from "@/components/slider";
 import ProductList from "@/components/ProductList";
 import CategoryList from "@/components/CategoryList";
+//import ClientComponent from "./client-component"; // Importujeme klientskou komponentu
 
-export const revalidate = 60 * 60;
+export const revalidate = 3600; // Volitelně, pokud chcete ISR
 
 export default async function Home() {
+  // Původní asynchronní načítání dat
   const data = await db.query.productVariants.findMany({
     with: {
       variantImages: true,
@@ -21,14 +22,15 @@ export default async function Home() {
 
   return (
     <main className="">
+      {/* <ClientComponent /> {/* Vložení klientské logiky */}
       <Slider />
       <Algolia />
       <div className="py-4 px-8">
         <h1 className="text-3xl mt-8 mx-[41%]">Product catalog</h1>
         <ProductList />
       </div>
-      <div className="py-4 px-8">
-        <h1 className="text-2xl mt-24 px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 mb-12">
+      <div className="py-4 px-6">
+        <h1 className="text-2xl mt-24 px-4 md:px-24 lg:px-16 xl:32 2xl:px-64 mb-12">
           Categories
         </h1>
         <ProductList />

@@ -18,6 +18,7 @@ const config = withUt({
         "2xl": "1400px",
       },
     },
+
     extend: {
       maxWidth: {
         "8xl": "88rem",

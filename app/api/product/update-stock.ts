@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fetch the current product to check its existence
+    // Fetch the current product to check its existence and stock
     const product = await db.query.products.findFirst({
       where: eq(products.id, Number(id)),
     });
@@ -27,10 +27,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Update the stock quantity
+    // Ensure there is enough stock available for the purchase
+    if (product.stock_quantity < Number(quantity)) {
+      return new NextResponse(
+        JSON.stringify({
+          message: "Insufficient stock available",
+        }),
+        { status: 400 }
+      );
+    }
+
+    // Update the stock quantity (subtracting the purchased quantity)
     await db
       .update(products)
-      .set({ stock_quantity: product.stock_quantity + Number(quantity) })
+      .set({ stock_quantity: product.stock_quantity - Number(quantity) })
       .where(eq(products.id, Number(id)));
 
     return new NextResponse(

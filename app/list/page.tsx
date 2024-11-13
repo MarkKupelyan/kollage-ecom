@@ -44,7 +44,6 @@ export default async function Home() {
 
         {/* PRODUCTS */}
         <div className="mt-8">
-          <h1 className="text-xl font-semibold mb-6">Rings For You!</h1>
           <Products variants={data} />
         </div>
       </div>

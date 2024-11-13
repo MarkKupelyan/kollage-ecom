@@ -19,7 +19,7 @@ function Hit({
     price: number;
     title: string;
     productType: string;
-    variantImages: string;
+    variantImages: string | string[]; // Allow both string and array
 
     _highlightResult: {
       title: {
@@ -37,21 +37,30 @@ function Hit({
     };
   };
 }) {
+  // Ensure that variantImages is an array
+  const images = Array.isArray(hit.variantImages)
+    ? hit.variantImages
+    : [hit.variantImages];
+
   return (
     <div className="p-4 mb-2 hover:bg-secondary ">
       <Link
-        href={`/products/${hit.objectID}?id=${hit.objectID}&productID=${hit.id}&price=${hit.price}&title=${hit.title}&type=${hit.productType}&image=${hit.variantImages[0]}&variantID=${hit.objectID}`}
+        href={`/products/${hit.objectID}?id=${hit.objectID}&productID=${hit.id}&price=${hit.price}&title=${hit.title}&type=${hit.productType}&image=${images[0]}&variantID=${hit.objectID}`}
       >
         <div className="flex w-full gap-12 items-center justify-between">
           <Image
-            src={hit.variantImages}
-            alt={hit.title}
+            src={
+              images.length > 0
+                ? images[0] // Use the first image if available
+                : "/default-image.png" // Fallback image
+            }
+            alt={hit.title || "Product image"} // Fallback alt text
             width={60}
             height={60}
           />
           <p
             dangerouslySetInnerHTML={{
-              __html: hit._highlightResult.title.value,
+              __html: hit._highlightResult?.title?.value || "Default Title", // Fallback value
             }}
           ></p>
 
@@ -80,7 +89,7 @@ export default function Algolia() {
       indexName="products"
       searchClient={searchClient}
     >
-      <div className="relative  top-2">
+      <div className="relative top-2">
         <SearchBox
           placeholder="Search"
           onFocus={() => setActive(true)}
@@ -91,7 +100,7 @@ export default function Algolia() {
           }}
           classNames={{
             input:
-              " h-full w-full rounded-md border border-input bg-background px-3 py-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+              "h-full w-full rounded-md border border-input bg-background px-3 py-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             submitIcon: "hidden",
             form: "relative mb-4",
             resetIcon: "hidden",
