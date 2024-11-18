@@ -54,9 +54,7 @@
     --input: 215 27.9% 16.9%;
     --ring: 263.4 70% 50.4%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -67,4 +65,38 @@
 
 [data-ut-element="button"][data-state="uploading"]::after {
   @apply bg-primary/50;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+  /* Global font size and padding adjustments for mobile */
+  body {
+    font-size: 0.875rem; /* Slightly smaller font for mobile */
+    padding: 0.5rem; /* Smaller padding */
+  }
+
+  /* Example: Adjust card padding on mobile */
+  .card {
+    padding: 1rem; /* Reduce padding for mobile */
+  }
+
+  /* Adjust layout for navigation */
+  .navbar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* Adjust button size */
+  button {
+    padding: 0.5rem 1rem; /* Smaller padding for buttons on mobile */
+  }
+
+  /* Utility classes for text and heading scaling */
+  .text-lg {
+    font-size: 1.125rem;
+  }
+  .text-xl {
+    font-size: 1.25rem;
+  }
 }

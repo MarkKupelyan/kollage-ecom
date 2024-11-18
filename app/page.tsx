@@ -23,8 +23,10 @@ export default async function Home() {
   return (
     <main className="">
       {/* <ClientComponent /> {/* Vložení klientské logiky */}
-      <Slider />
-      <Algolia />
+      <div className="">
+        <Slider />
+      </div>
+
       <div className="py-4 px-8">
         <h1 className="text-3xl mt-8 mx-[41%]">Product catalog</h1>
         <ProductList />

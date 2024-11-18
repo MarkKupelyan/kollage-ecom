@@ -1,11 +1,7 @@
-// CategoryLinks.tsx
+"use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import {
-  HoverCard,
-  HoverCardTrigger,
-  HoverCardContent,
-} from "@radix-ui/react-hover-card";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 const categories = [
@@ -16,32 +12,78 @@ const categories = [
 ];
 
 const CategoryLinks = () => {
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  const toggleCategory = (categoryName: string) => {
+    if (expandedCategory === categoryName) {
+      setExpandedCategory(null); // Collapse if already expanded
+    } else {
+      setExpandedCategory(categoryName); // Expand selected category
+    }
+  };
+
   return (
-    <ul className="flex gap-0 px-14">
-      {categories.map((category) => (
-        <li key={category.name} className="relative group ">
-          <HoverCard openDelay={100} closeDelay={100}>
-            <HoverCardTrigger asChild>
-              <div className="flex items-center cursor-pointer text-sm font-semibold text-gray-800 transition-colors duration-200 group-hover:bg-gray-200 p-3 rounded-lg shadow-sm hover:shadow-md">
+    <div>
+      {/* Mobile View (Dropdown functionality only for mobile screens) */}
+      <div className="md:hidden">
+        <ul className="space-y-4 px-4">
+          {categories.map((category) => (
+            <li key={category.name}>
+              <div
+                onClick={() => toggleCategory(category.name)}
+                className="flex items-center justify-between cursor-pointer text-sm font-semibold text-gray-800 p-3 rounded-lg shadow-sm hover:bg-gray-200"
+              >
                 <Link href={`/list?page&tag=${category.tag}`}>
                   {category.name}
                 </Link>
                 <ChevronDownIcon
-                  className="ml-1 w-4 transition-transform duration-200 group-hover:rotate-180"
+                  className={`ml-2 w-4 transition-transform ${
+                    expandedCategory === category.name ? "rotate-180" : ""
+                  }`}
                   aria-hidden="true"
                 />
               </div>
-            </HoverCardTrigger>
-            <HoverCardContent
-              sideOffset={0}
-              className="mt-1 bg-white shadow-lg rounded-md p-4 transition-all duration-150 ease-in-out"
-              aria-label={`Subcategories for ${category.name}`}
+              {expandedCategory === category.name && (
+                <ul className="mt-2 ml-4 space-y-2">
+                  {category.subcategories.map((subcategory, index) => (
+                    <li
+                      key={index}
+                      className="text-xs text-gray-600 pl-2 hover:bg-gray-100 p-2 rounded-md"
+                    >
+                      <Link
+                        href={`/list?page&tag=${
+                          category.tag
+                        }&subcategory=${subcategory.toLowerCase()}`}
+                      >
+                        {subcategory}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Desktop View (Hover to show subcategories) */}
+      <div className="hidden md:flex gap-4 md:space-x-8 px-4 md:px-14">
+        {categories.map((category) => (
+          <div key={category.name} className="relative group">
+            <Link
+              href={`/list?page&tag=${category.tag}`}
+              className="text-sm font-semibold text-gray-800 p-3 rounded-lg hover:bg-gray-200 transition-colors"
             >
-              <ul className="space-y-2">
+              {category.name}
+            </Link>
+
+            {/* Subcategories Dropdown on Hover */}
+            <div className="absolute left-0 mt-1 hidden group-hover:block bg-white border border-gray-200 rounded-md shadow-lg z-10">
+              <ul className="py-2">
                 {category.subcategories.map((subcategory, index) => (
                   <li
                     key={index}
-                    className="text-xs text-gray-600 hover:bg-gray-100 transition-colors p-2 rounded-md"
+                    className="whitespace-nowrap text-sm text-gray-700 hover:bg-gray-100 px-4 py-2"
                   >
                     <Link
                       href={`/list?page&tag=${
@@ -53,11 +95,11 @@ const CategoryLinks = () => {
                   </li>
                 ))}
               </ul>
-            </HoverCardContent>
-          </HoverCard>
-        </li>
-      ))}
-    </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
