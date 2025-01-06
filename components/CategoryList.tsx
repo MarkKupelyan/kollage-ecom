@@ -12,23 +12,26 @@ const images = [
   "/almaz.png",
 ];
 
-const visibleSlides = 3; // Number of images to show at once
 const CategoryList = () => {
   const [curSlide, setCurSlide] = useState(0);
-  const [isSliding, setIsSliding] = useState(true); // State to control sliding
+  const [isSliding, setIsSliding] = useState(false); // Avoid spamming transitions
   const sliderRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Intersection Observer to detect visibility
+  // Number of images to show at once based on screen size
+  const [visibleSlides, setVisibleSlides] = useState(3);
+
+  // Handle auto-slide with visibility observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsSliding(true); // Start sliding when in viewport
+          startAutoSlide();
         } else {
-          setIsSliding(false); // Stop sliding when out of viewport
+          stopAutoSlide();
         }
       },
-      { threshold: 0.1 } // Trigger when 10% of the slider is visible
+      { threshold: 0.1 }
     );
 
     if (sliderRef.current) {
@@ -36,35 +39,69 @@ const CategoryList = () => {
     }
 
     return () => {
+      stopAutoSlide();
       if (sliderRef.current) {
         observer.unobserve(sliderRef.current);
       }
     };
   }, []);
 
-  // Auto-slide effect
   useEffect(() => {
-    const autoSlide = setInterval(() => {
-      if (isSliding) {
-        nextSlide();
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setVisibleSlides(1);
+      } else if (window.innerWidth < 1024) {
+        setVisibleSlides(2);
+      } else {
+        setVisibleSlides(3);
       }
-    }, 2000); // Slide every 3 seconds
+    };
 
-    return () => clearInterval(autoSlide); // Clean up on unmount
-  }, [curSlide, isSliding]);
+    handleResize(); // Initial call to set the correct number of visible slides
+    window.addEventListener("resize", handleResize);
 
-  // Circularly update the slide index
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const startAutoSlide = () => {
+    timerRef.current = setInterval(() => {
+      nextSlide();
+    }, 3000); // Auto-slide interval in milliseconds
+  };
+
+  const stopAutoSlide = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  // Ensure only one slide transition at a time
   const nextSlide = () => {
-    if (curSlide < images.length - 1) {
-      setCurSlide((prev) => prev + 1); // Increment slide index
-    } else {
-      setCurSlide(0); // Reset to first slide
+    if (!isSliding) {
+      setIsSliding(true);
+      setCurSlide((prev) => (prev + 1) % images.length);
     }
   };
 
   const prevSlide = () => {
-    setCurSlide((prev) => (prev - 1 + images.length) % images.length); // Decrement slide index
+    if (!isSliding) {
+      setIsSliding(true);
+      setCurSlide((prev) => (prev - 1 + images.length) % images.length);
+    }
   };
+
+  // Reset sliding state after transition
+  useEffect(() => {
+    if (isSliding) {
+      const timeout = setTimeout(() => {
+        setIsSliding(false);
+      }, 700); // Match transition duration
+      return () => clearTimeout(timeout);
+    }
+  }, [isSliding]);
 
   return (
     <div className="slider relative overflow-hidden" ref={sliderRef}>
@@ -74,19 +111,19 @@ const CategoryList = () => {
           transform: `translateX(-${(curSlide * 100) / visibleSlides}%)`,
         }}
       >
-        {/* Duplicate images infinitely by mapping the images array twice */}
+        {/* Infinite scrolling effect */}
         {[...images, ...images].map((src, index) => (
           <div
             key={index}
-            className="flex-shrink-0 w-1/3 px-2" // Adjust width to show 3 images
+            className="flex-shrink-0 w-full md:w-1/2 lg:w-1/3 px-2" // Adjust width based on screen size
           >
             <Link href={`/list?cat=test`}>
-              <div className="relative w-full h-80 rounded-lg shadow-lg overflow-hidden">
+              <div className="relative w-full h-64 rounded-lg shadow-lg overflow-hidden">
                 <Image
                   src={src}
-                  alt=""
+                  alt={`Slide ${index}`}
                   fill
-                  sizes="33vw"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover rounded-lg"
                 />
               </div>
@@ -103,20 +140,23 @@ const CategoryList = () => {
             className={`dots__dot w-3 h-3 rounded-full mx-1 ${
               index === curSlide ? "bg-black" : "bg-gray-400"
             }`}
-            onClick={() => setCurSlide(index)}
+            onClick={() => {
+              setCurSlide(index);
+              stopAutoSlide(); // Pause auto-slide on manual navigation
+            }}
           />
         ))}
       </div>
 
       {/* Navigation Buttons */}
       <button
-        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full shadow-lg"
+        className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full shadow-lg z-10"
         onClick={prevSlide}
       >
         ◀
       </button>
       <button
-        className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full shadow-lg"
+        className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full shadow-lg z-10"
         onClick={nextSlide}
       >
         ▶

@@ -18,7 +18,6 @@ const config = withUt({
         "2xl": "1400px",
       },
     },
-
     extend: {
       maxWidth: {
         "8xl": "88rem",
@@ -36,7 +35,7 @@ const config = withUt({
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "#4e342e",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -71,12 +70,20 @@ const config = withUt({
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
       },
       animation: {

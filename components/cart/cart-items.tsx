@@ -141,15 +141,18 @@ export default function CartItems() {
         </div>
       )}
       {/* Promo kód sekce */}
-      <div className="promo-code-section my-4 relative">
+      <div className="promo-code-section my-4 relative flex gap-2">
         <input
           type="text"
           value={promoCode}
           onChange={(e) => setPromoCode(e.target.value)}
           placeholder="Enter promo code"
-          className="input"
+          className="px-4 py-2 rounded-md border border-[#4e342e]/20 focus:outline-none focus:border-[#4e342e] flex-1 transition-all"
         />
-        <Button onClick={validatePromoCode} className="ml-2">
+        <Button
+          className="bg-[#4e342e] text-white px-6 py-2 rounded-md hover:bg-[#3e2723] transition-colors"
+          onClick={validatePromoCode}
+        >
           Apply
         </Button>
         {/* Zobrazení zprávy až po kliknutí na tlačítko */}
@@ -188,10 +191,10 @@ export default function CartItems() {
         </AnimatePresence>
       </motion.div>
       <Button
+        className="w-full bg-[#4e342e] text-white py-3 rounded-lg"
         onClick={() => {
           setCheckoutProgress("payment-page");
         }}
-        className="max-w-md w-full"
         disabled={cart.length === 0}
       >
         Checkout

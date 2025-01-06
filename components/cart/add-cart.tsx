@@ -60,9 +60,13 @@ export default function AddCart({
           className="text-primary"
           disabled={stockQuantity <= 0} // Disable button if out of stock
         >
-          <Minus size={18} strokeWidth={3} />
+          <Minus size={18} strokeWidth={4} className="text-black " />
         </Button>
-        <Button variant={"secondary"} className="flex-1" disabled>
+        <Button
+          variant={"secondary"}
+          className="flex-1 text-white bg-[#251513]"
+          disabled
+        >
           Quantity: {quantity}
         </Button>
         <Button
@@ -72,10 +76,10 @@ export default function AddCart({
             }
           }}
           variant={"secondary"}
-          className="text-primary"
+          className="text-white "
           disabled={stockQuantity <= 0} // Disable button if out of stock
         >
-          <Plus size={18} strokeWidth={3} />
+          <Plus size={18} strokeWidth={4} className="text-black " />
         </Button>
       </div>
       <Button

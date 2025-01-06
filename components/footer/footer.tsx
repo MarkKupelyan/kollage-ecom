@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <div className="py-24 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 bg-gray-100 text-sm mt-24">
+    <div className="py-24 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 bg-[#4e342e] text-white text-sm mt-24 font-heading">
       {/* TOP */}
       <div className="flex flex-col md:flex-row justify-between gap-24">
         {/* LEFT */}
@@ -15,11 +15,35 @@ const Footer = () => {
           <span className="font-semibold">kollage7@gmail.com</span>
           <span className="font-semibold">+1 234 567 890</span>
           <div className="flex gap-6">
-            <Image src="/facebook.png" alt="" width={16} height={16} />
-            <Image src="/instagram.png" alt="" width={16} height={16} />
-            <Image src="/youtube.png" alt="" width={16} height={16} />
-            <Image src="/pinterest.png" alt="" width={16} height={16} />
-            <Image src="/x.png" alt="" width={16} height={16} />
+            <Image
+              src="/facebook.png"
+              alt=""
+              width={16}
+              height={16}
+              className="brightness-0 invert"
+            />
+            <Image
+              src="/instagram.png"
+              alt=""
+              width={16}
+              height={16}
+              className="brightness-0 invert"
+            />
+
+            <Image
+              src="/pinterest.png"
+              alt=""
+              width={16}
+              height={16}
+              className="brightness-0 invert"
+            />
+            <Image
+              src="/x.png"
+              alt=""
+              width={16}
+              height={16}
+              className="brightness-0 invert"
+            />
           </div>
         </div>
         {/* CENTER */}
@@ -85,11 +109,11 @@ const Footer = () => {
         <div className="">© 2024 KOLLAGE</div>
         <div className="flex flex-col gap-8 md:flex-row">
           <div className="">
-            <span className="text-gray-500 mr-4">Language</span>
+            <span className="text-gray-200 mr-4">Language</span>
             <span className="font-medium">United States | English</span>
           </div>
           <div className="">
-            <span className="text-gray-500 mr-4">Currency</span>
+            <span className="text-gray-200 mr-4">Currency</span>
             <span className="font-medium">$ USD</span>
           </div>
         </div>

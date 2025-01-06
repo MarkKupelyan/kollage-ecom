@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
-import { Inter, Roboto } from "next/font/google";
+import { Inter, Roboto, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
-import Nav from "@/components/navigation/nav";
+import AnimatedHeader from "@/components/navigation/animated-header";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import Toaster from "@/components/ui/toaster";
 import Footer from "@/components/footer/footer";
+import { SessionProvider } from "next-auth/react";
 
 const roboto = Roboto({
   weight: ["400", "500", "700", "900"],
   subsets: ["latin"],
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-playfair",
 });
 
 export const metadata: Metadata = {
@@ -24,16 +31,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={roboto.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="">
-            <Nav />
-            <Toaster />
-            {children}
-            <Footer />
-          </div>
-        </ThemeProvider>
+    <html lang="en" suppressHydrationWarning className={`${playfair.variable}`}>
+      <body className={`${roboto.className} ${playfair.variable}`}>
+        <SessionProvider>
+          <AnimatedHeader />
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <div className="">
+              <Toaster />
+              {children}
+              <Footer />
+            </div>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

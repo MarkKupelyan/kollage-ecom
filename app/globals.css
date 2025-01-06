@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -61,6 +63,13 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  .font-heading {
+    font-family: "Montserrat", Arial, sans-serif;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
 }
 
 [data-ut-element="button"][data-state="uploading"]::after {
@@ -99,4 +108,26 @@
   .text-xl {
     font-size: 1.25rem;
   }
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+}
+
+.translate-y-0 {
+  transform: translateY(0);
+}
+
+.-translate-y-full {
+  transform: translateY(-100%);
+}
+
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.duration-300 {
+  transition-duration: 300ms;
 }
