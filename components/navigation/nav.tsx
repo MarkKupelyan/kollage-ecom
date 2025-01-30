@@ -62,12 +62,13 @@ const categories = [
 
 export default function Nav({ session }: { session: any }) {
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
   return (
     <header className="border-b">
       <div className="container flex h-20 items-center justify-between">
         <div className="flex items-center gap-4 w-1/3">
-          <Sheet>
+          <Sheet onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden p-2">
                 <Menu className="h-10 w-10 stroke-[1.5]" />

@@ -1,358 +1,403 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { Slide } from "@/components/ui/slide";
+import { ChevronDown, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export default function Filter() {
   const router = useRouter();
   const params = useSearchParams();
-  const tag = params.get("tag");
-
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isMaterialOpen, setIsMaterialOpen] = useState(false);
-  const [isColorOpen, setIsColorOpen] = useState(false);
-  const [isPriceOpen, setIsPriceOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [openSection, setOpenSection] = useState<string | null>(null);
+  const [activeFilters, setActiveFilters] = useState({
+    material: "",
+    priceRange: [0, 1000],
+    color: "",
+    stone: "",
+    category: "",
+    size: "",
+    collection: "",
+  });
+  const [resultsCount, setResultsCount] = useState(387);
 
-  const filterPanelRef = useRef<HTMLDivElement>(null);
-
-  const setFilter = (tag: string) => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (tag) {
-      urlParams.set("tag", tag);
-    } else {
-      urlParams.delete("tag");
-    }
-    router.push(`?${urlParams.toString()}`);
-
-    // Close all dropdowns after selecting a filter
-    setIsCategoryOpen(false);
-    setIsMaterialOpen(false);
-    setIsColorOpen(false);
-    setIsPriceOpen(false);
-  };
-
-  const resetFilters = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.delete("tag");
-    router.push(`${window.location.pathname}?${urlParams.toString()}`);
-  };
-
-  const toggleCategory = () => setIsCategoryOpen(!isCategoryOpen);
-  const toggleMaterial = () => setIsMaterialOpen(!isMaterialOpen);
-  const toggleColor = () => setIsColorOpen(!isColorOpen);
-  const togglePrice = () => setIsPriceOpen(!isPriceOpen);
-  const toggleFilterPanel = () => setIsFilterOpen(!isFilterOpen);
-
+  // Načtení filtrů z localStorage při inicializaci
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        filterPanelRef.current &&
-        !filterPanelRef.current.contains(event.target as Node)
-      ) {
-        setIsFilterOpen(false);
-      }
-    };
+    const savedFilters = localStorage.getItem("filters");
+    if (savedFilters) {
+      setActiveFilters(JSON.parse(savedFilters));
+    }
+  }, []);
 
+  // Uložení filtrů do localStorage při změně
+  useEffect(() => {
+    localStorage.setItem("filters", JSON.stringify(activeFilters));
+    // Zde by byla logika pro získání počtu výsledků z API
+    calculateResults();
+  }, [activeFilters]);
+
+  const calculateResults = () => {
+    // Simulace API volání - v reálné aplikaci by zde byl skutečný API call
+    const count = Object.values(activeFilters).filter((value) => value).length;
+    setResultsCount(count * 10); // Pouze pro demonstraci
+  };
+
+  const toggleSection = (section: string) => {
+    setOpenSection(openSection === section ? null : section);
+  };
+
+  const clearAllFilters = () => {
+    setActiveFilters({
+      material: "",
+      priceRange: [0, 1000],
+      color: "",
+      stone: "",
+      category: "",
+      size: "",
+      collection: "",
+    });
+  };
+
+  // Efekt pro zakázání scrollování na <body> při otevření menu
+  useEffect(() => {
     if (isFilterOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "hidden";
     } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "auto";
     }
 
+    // Cleanup funkce pro obnovení scrollování při unmountu
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "auto";
     };
   }, [isFilterOpen]);
 
+  const filterOptions = {
+    color: [
+      { name: "Gold", count: 155 },
+      { name: "Silver", count: 80 },
+      { name: "Rose Gold", count: 18 },
+      { name: "Black", count: 25 },
+      { name: "White", count: 33 },
+    ],
+    stone: [
+      { name: "Diamond", count: 245 },
+      { name: "Ruby", count: 42 },
+      { name: "Sapphire", count: 38 },
+      { name: "Emerald", count: 29 },
+      { name: "Pearl", count: 56 },
+    ],
+    category: [
+      { name: "Rings", count: 187 },
+      { name: "Necklaces", count: 145 },
+      { name: "Earrings", count: 167 },
+      { name: "Bracelets", count: 98 },
+      { name: "Watches", count: 45 },
+    ],
+    size: [
+      { name: "XS", count: 45 },
+      { name: "S", count: 78 },
+      { name: "M", count: 156 },
+      { name: "L", count: 89 },
+      { name: "XL", count: 34 },
+    ],
+    collection: [
+      { name: "Summer 2024", count: 89 },
+      { name: "Classic", count: 167 },
+      { name: "Modern Art", count: 78 },
+      { name: "Vintage", count: 123 },
+      { name: "Limited Edition", count: 45 },
+    ],
+  };
+
   return (
     <>
-      <button
-        onClick={toggleFilterPanel}
-        className="block md:hidden px-10 py-2 bg-blue-600 text-white rounded-md shadow-lg transition duration-300 hover:bg-blue-700"
-      >
-        Filters
-      </button>
+      {/* Overlay */}
+      {isFilterOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-50 transition-opacity"
+          onClick={() => setIsFilterOpen(false)}
+        />
+      )}
 
+      {/* Desktop a mobilní filter menu */}
       <div
-        ref={filterPanelRef}
-        className={`fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-lg z-50 transition-transform transform ${
-          isFilterOpen ? "translate-x-0" : "translate-x-full"
-        } md:static md:translate-x-0 md:w-auto md:hidden`}
+        className={`
+        fixed inset-0 bg-white z-50
+        ${isFilterOpen ? "translate-x-0" : "-translate-x-full"}
+        transition-transform duration-300 ease-in-out
+        lg:w-1/3
+      `}
       >
-        <button
-          onClick={toggleFilterPanel}
-          className="block md:hidden absolute top-4 right-4 text-gray-700"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-            stroke="currentColor"
-            className="h-6 w-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+        {/* Horní lišta */}
+        <div className="flex justify-between items-center px-6 py-4 border-b sticky top-0 bg-white">
+          <span className="text-base font-normal tracking-[0.1em]">
+            FILTERS
+          </span>
+          <button onClick={() => setIsFilterOpen(false)}>
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
-        <div className="flex flex-col p-4 h-full bg-gray-50">
-          <h2 className="text-xl font-bold text-blue-600 mb-4">Filters</h2>
+        {/* Obsah filtrů */}
+        <div className="overflow-y-auto h-[calc(100vh-120px)] lg:h-[calc(100vh-180px)]">
+          <div className="divide-y border-b">
+            {/* Pick Up */}
+            <div className="px-6 py-4 flex items-center justify-between">
+              <span className="text-sm tracking-[0.1em] font-normal">
+                PICK UP
+              </span>
+              <Switch />
+            </div>
 
-          <div className="flex-grow space-y-4">
-            {/* Filter Option: Categories */}
-            <div className="relative">
+            {/* Material */}
+            <div className="px-6 py-4">
               <button
-                onClick={toggleCategory}
-                className="w-full text-left px-4 py-2 text-gray-800 bg-gray-200 rounded-md transition duration-200 hover:bg-gray-300"
+                onClick={() => toggleSection("material")}
+                className="flex items-center justify-between w-full"
               >
-                Categories {isCategoryOpen ? "▲" : "▼"}
+                <span className="text-sm tracking-[0.1em] font-normal">
+                  MATERIAL
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    openSection === "material" ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              {isCategoryOpen && (
-                <div className=" mt-2 bg-white border rounded-md shadow-lg z-50">
-                  <ul className="p-4">
-                    <li
-                      onClick={() => setFilter("rings")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
+              {openSection === "material" && (
+                <div className="mt-4 space-y-3">
+                  {[
+                    { name: "Aluminum", count: "18" },
+                    { name: "Mixed Metals", count: "79" },
+                    { name: "Rose Gold", count: "18" },
+                    { name: "Sterling Silver", count: "80" },
+                    { name: "Titanium", count: "2" },
+                    { name: "White Gold", count: "33" },
+                    { name: "Yellow Gold", count: "155" },
+                  ].map((material) => (
+                    <button
+                      key={material.name}
+                      onClick={() =>
+                        setActiveFilters({
+                          ...activeFilters,
+                          material: material.name,
+                        })
+                      }
+                      className="block w-full text-left text-sm hover:opacity-70"
                     >
-                      Rings
-                    </li>
-                    <li
-                      onClick={() => setFilter("necklaces")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                    >
-                      Necklaces
-                    </li>
-                    <li
-                      onClick={() => setFilter("earrings")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                    >
-                      Earrings
-                    </li>
-                  </ul>
+                      {material.name} ({material.count})
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Filter Option: Material */}
-            <div className="relative">
+            {/* Price */}
+            <div className="px-6 py-4">
               <button
-                onClick={toggleMaterial}
-                className="w-full text-left px-4 py-2 text-gray-800 bg-gray-200 rounded-md transition duration-200 hover:bg-gray-300"
+                onClick={() => toggleSection("price")}
+                className="flex items-center justify-between w-full"
               >
-                Material {isMaterialOpen ? "▲" : "▼"}
+                <span className="text-sm tracking-[0.1em] font-normal">
+                  PRICE
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    openSection === "price" ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              {isMaterialOpen && (
-                <div className="mt-2 bg-white border rounded-md shadow-lg z-50">
-                  <ul className="p-4">
-                    <li
-                      onClick={() => setFilter("gold")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
+            </div>
+
+            {/* Color */}
+            <div className="px-6 py-4">
+              <button
+                onClick={() => toggleSection("color")}
+                className="flex items-center justify-between w-full"
+              >
+                <span className="text-sm tracking-widest">COLOR</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    openSection === "color" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {openSection === "color" && (
+                <div className="mt-4 space-y-2">
+                  {filterOptions.color.map((item) => (
+                    <button
+                      key={item.name}
+                      onClick={() =>
+                        setActiveFilters({ ...activeFilters, color: item.name })
+                      }
+                      className="block w-full text-left py-1 text-sm"
                     >
-                      Gold
-                    </li>
-                    <li
-                      onClick={() => setFilter("silver")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                    >
-                      Silver
-                    </li>
-                    <li
-                      onClick={() => setFilter("platinum")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                    >
-                      Platinum
-                    </li>
-                  </ul>
+                      {item.name} ({item.count})
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Filter Option: Color */}
-            <div className="relative">
+            {/* Stone */}
+            <div className="px-6 py-4">
               <button
-                onClick={toggleColor}
-                className="w-full text-left px-4 py-2 text-gray-800 bg-gray-200 rounded-md transition duration-200 hover:bg-gray-300"
+                onClick={() => toggleSection("stone")}
+                className="flex items-center justify-between w-full"
               >
-                Color {isColorOpen ? "▲" : "▼"}
+                <span className="text-sm tracking-widest">STONE</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    openSection === "stone" ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              {isColorOpen && (
-                <div className="mt-2 bg-white border rounded-md shadow-lg z-50">
-                  <ul className="p-4">
-                    <li
-                      onClick={() => setFilter("white")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
+              {openSection === "stone" && (
+                <div className="mt-4 space-y-2">
+                  {filterOptions.stone.map((item) => (
+                    <button
+                      key={item.name}
+                      onClick={() =>
+                        setActiveFilters({ ...activeFilters, stone: item.name })
+                      }
+                      className="block w-full text-left py-1 text-sm"
                     >
-                      White
-                    </li>
-                    <li
-                      onClick={() => setFilter("yellow")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
+                      {item.name} ({item.count})
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Category */}
+            <div className="px-6 py-4">
+              <button
+                onClick={() => toggleSection("category")}
+                className="flex items-center justify-between w-full"
+              >
+                <span className="text-sm tracking-widest">CATEGORY</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    openSection === "category" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {openSection === "category" && (
+                <div className="mt-4 space-y-2">
+                  {filterOptions.category.map((item) => (
+                    <button
+                      key={item.name}
+                      onClick={() =>
+                        setActiveFilters({
+                          ...activeFilters,
+                          category: item.name,
+                        })
+                      }
+                      className="block w-full text-left py-1 text-sm"
                     >
-                      Yellow
-                    </li>
-                    <li
-                      onClick={() => setFilter("green")}
-                      className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
+                      {item.name} ({item.count})
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Size */}
+            <div className="px-6 py-4">
+              <button
+                onClick={() => toggleSection("size")}
+                className="flex items-center justify-between w-full"
+              >
+                <span className="text-sm tracking-widest">SIZE</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    openSection === "size" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {openSection === "size" && (
+                <div className="mt-4 space-y-2">
+                  {filterOptions.size.map((item) => (
+                    <button
+                      key={item.name}
+                      onClick={() =>
+                        setActiveFilters({ ...activeFilters, size: item.name })
+                      }
+                      className="block w-full text-left py-1 text-sm"
                     >
-                      Green
-                    </li>
-                  </ul>
+                      {item.name} ({item.count})
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Collection */}
+            <div className="px-6 py-4">
+              <button
+                onClick={() => toggleSection("collection")}
+                className="flex items-center justify-between w-full"
+              >
+                <span className="text-sm tracking-widest">COLLECTION</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    openSection === "collection" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {openSection === "collection" && (
+                <div className="mt-4 space-y-2">
+                  {filterOptions.collection.map((item) => (
+                    <button
+                      key={item.name}
+                      onClick={() =>
+                        setActiveFilters({
+                          ...activeFilters,
+                          collection: item.name,
+                        })
+                      }
+                      className="block w-full text-left py-1 text-sm"
+                    >
+                      {item.name} ({item.count})
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Reset All Button */}
+        {/* Patička */}
+        <div className="border-t px-6 py-4 flex justify-between items-center bg-white sticky bottom-0">
           <button
-            onClick={resetFilters}
-            className="w-full py-2 bg-red-600 text-white rounded-md mt-4 border border-red-700 transition duration-300 hover:bg-red-700"
+            onClick={clearAllFilters}
+            className="text-sm tracking-[0.1em] font-normal border border-black px-8 py-3"
           >
-            Reset All
+            CLEAR ALL
+          </button>
+          <button
+            onClick={() => setIsFilterOpen(false)}
+            className="bg-black text-white px-8 py-3 text-sm tracking-[0.1em] font-normal"
+          >
+            VIEW RESULTS ({resultsCount})
           </button>
         </div>
       </div>
 
-      {/* Desktop Filter panel */}
-      <div className="hidden md:flex items-center gap-2 px-4 py-4 border-b">
-        {/* Filter Option: Categories */}
-        <div className="relative">
+      {/* Filter tlačítko pro desktop i mobil */}
+      <div className="sticky top-0 border rounded-2xl overflow-hidden bg-white z-30">
+        <div className="flex justify-between items-center px-6 py-4">
           <button
-            onClick={toggleCategory}
-            className="px-4 py-2 text-gray-800 bg-gray-200 rounded-md transition duration-200 hover:bg-gray-300"
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center gap-2 text-sm tracking-[0.1em] font-normal"
           >
-            Categories {isCategoryOpen ? "▲" : "▼"}
+            FILTERS <ChevronDown className="h-4 w-4" />
           </button>
-          {isCategoryOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white border shadow-lg z-50">
-              <ul className="p-4">
-                <li
-                  onClick={() => setFilter("rings")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  Rings
-                </li>
-                <li
-                  onClick={() => setFilter("necklaces")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  Necklaces
-                </li>
-                <li
-                  onClick={() => setFilter("ear rings")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  Earrings
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* Filter Option: Material */}
-        <div className="relative">
-          <button
-            onClick={toggleMaterial}
-            className="px-4 py-2 text-gray-800 bg-gray-200 rounded-md transition duration-200 hover:bg-gray-300"
-          >
-            Material {isMaterialOpen ? "▲" : "▼"}
+          <button className="flex items-center gap-2 text-sm tracking-[0.1em] font-normal">
+            SORT BY <ChevronDown className="h-4 w-4" />
           </button>
-          {isMaterialOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white border shadow-lg z-50">
-              <ul className="p-4">
-                <li
-                  onClick={() => setFilter("gold")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  Gold
-                </li>
-                <li
-                  onClick={() => setFilter("silver")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  Silver
-                </li>
-                <li
-                  onClick={() => setFilter("platinum")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  Platinum
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* Filter Option: Color */}
-        <div className="relative">
-          <button
-            onClick={toggleColor}
-            className="px-4 py-2 text-gray-800 bg-gray-200 rounded-md transition duration-200 hover:bg-gray-300"
-          >
-            Color {isColorOpen ? "▲" : "▼"}
-          </button>
-          {isColorOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white border shadow-lg z-50">
-              <ul className="p-4">
-                <li
-                  onClick={() => setFilter("white")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  White
-                </li>
-                <li
-                  onClick={() => setFilter("yellow")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  Yellow
-                </li>
-                <li
-                  onClick={() => setFilter("green")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  Green
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* Filter Option: Price Range */}
-        <div className="relative">
-          <button
-            onClick={togglePrice}
-            className="px-4 py-2 text-gray-800 bg-gray-200 rounded-md transition duration-200 hover:bg-gray-300"
-          >
-            Price Range {isPriceOpen ? "▲" : "▼"}
-          </button>
-          {isPriceOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white border shadow-lg z-50">
-              <ul className="p-4">
-                <li
-                  onClick={() => setFilter("0-50")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  $0 - $50
-                </li>
-                <li
-                  onClick={() => setFilter("50-100")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  $50 - $100
-                </li>
-                <li
-                  onClick={() => setFilter("100-200")}
-                  className="py-2 cursor-pointer hover:bg-gray-100 transition duration-200"
-                >
-                  $100 - $200
-                </li>
-              </ul>
-            </div>
-          )}
         </div>
       </div>
     </>

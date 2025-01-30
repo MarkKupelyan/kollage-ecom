@@ -1,7 +1,7 @@
 import { db } from "@/server";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Search, ShoppingBag, User } from "lucide-react";
+import { Car, Heart, Search, ShoppingBag, User } from "lucide-react";
 
 import Slider from "@/components/slider";
 import Algolia from "@/components/products/algolia";
@@ -12,6 +12,7 @@ import CategoryList from "@/components/CategoryList";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ShopByCategory from "@/components/ShopByCategory";
+import Card from "@/components/card-cycle";
 
 export const revalidate = 3600;
 
@@ -197,6 +198,12 @@ export default async function Home() {
             </form>
           </div>
         </section>
+        {/*
+        <section>
+          <div>
+            <Card />
+          </div>
+        </section>*/}
       </main>
     </div>
   );

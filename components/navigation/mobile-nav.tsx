@@ -61,6 +61,14 @@ const categories = [
 export function MobileNav() {
   const [open, setOpen] = React.useState(false);
 
+  const handleLinkClick = (href: string) => {
+    setOpen(false);
+
+    setTimeout(() => {
+      window.location.href = href;
+    }, 300);
+  };
+
   return (
     <div className="flex flex-col h-[100dvh] pt-6 px-6">
       <div className="flex justify-center mb-6">
@@ -73,14 +81,13 @@ export function MobileNav() {
             <AccordionContent>
               <div className="flex flex-col space-y-2">
                 {collections.map((collection) => (
-                  <Link
+                  <button
                     key={collection.title}
-                    href={collection.href}
-                    onClick={() => setOpen(false)}
-                    className="text-sm text-muted-foreground hover:text-foreground"
+                    onClick={() => handleLinkClick(collection.href)}
+                    className="text-left text-sm text-muted-foreground hover:text-foreground"
                   >
                     {collection.title}
-                  </Link>
+                  </button>
                 ))}
               </div>
             </AccordionContent>
@@ -90,14 +97,13 @@ export function MobileNav() {
             <AccordionContent>
               <div className="flex flex-col space-y-2">
                 {categories.map((category) => (
-                  <Link
+                  <button
                     key={category.title}
-                    href={category.href}
-                    onClick={() => setOpen(false)}
-                    className="text-sm text-muted-foreground hover:text-foreground"
+                    onClick={() => handleLinkClick(category.href)}
+                    className="text-left text-sm text-muted-foreground hover:text-foreground"
                   >
                     {category.title}
-                  </Link>
+                  </button>
                 ))}
               </div>
             </AccordionContent>
@@ -107,14 +113,13 @@ export function MobileNav() {
             <AccordionContent>
               <div className="flex flex-col space-y-2">
                 {categories.map((category) => (
-                  <Link
+                  <button
                     key={category.title}
-                    href={category.href}
-                    onClick={() => setOpen(false)}
-                    className="text-sm text-muted-foreground hover:text-foreground"
+                    onClick={() => handleLinkClick(category.href)}
+                    className="text-left text-sm text-muted-foreground hover:text-foreground"
                   >
                     {category.title}
-                  </Link>
+                  </button>
                 ))}
               </div>
             </AccordionContent>
@@ -123,14 +128,14 @@ export function MobileNav() {
         <div className="space-y-4">
           <Link
             href="/gifts"
-            onClick={() => setOpen(false)}
+            onClick={() => handleLinkClick("/gifts")}
             className="block text-sm font-medium"
           >
             GIFTS
           </Link>
           <Link
             href="/auth/login"
-            onClick={() => setOpen(false)}
+            onClick={() => handleLinkClick("/auth/login")}
             className="block text-sm font-medium"
           >
             LOGIN
