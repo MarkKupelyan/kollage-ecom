@@ -28,7 +28,7 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
           >
             <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
               <Image
-                src={product.image}
+                src={product.image || "/placeholder_small.jpg"}
                 alt={product.name}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"

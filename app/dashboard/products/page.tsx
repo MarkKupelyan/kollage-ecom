@@ -22,7 +22,8 @@ export default async function Products() {
         variants: [],
       };
     }
-    const image = product.productVariants[0].variantImages[0].url;
+    const image =
+      product.productVariants[0]?.variantImages?.[0]?.url || placeholder.src;
     return {
       id: product.id,
       title: product.title,

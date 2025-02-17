@@ -1,7 +1,5 @@
 {
-  "id": "54f0c9ba-a7f1-4512-9e2a-bac12405fdd9",
-  "prevId": "04f4a0e2-4b15-4475-bc2c-177b5108b9bd",
-  "version": "6",
+  "version": "7",
   "dialect": "postgresql",
   "tables": {
     "public.account": {
@@ -80,15 +78,15 @@
         "account_userId_user_id_fk": {
           "name": "account_userId_user_id_fk",
           "tableFrom": "account",
-          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -100,7 +98,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.email_tokens": {
       "name": "email_tokens",
@@ -142,7 +143,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.password_reset_tokens": {
       "name": "password_reset_tokens",
@@ -184,7 +188,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.products": {
       "name": "products",
@@ -225,7 +232,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.two_factor_tokens": {
       "name": "two_factor_tokens",
@@ -267,15 +277,15 @@
         "two_factor_tokens_userID_user_id_fk": {
           "name": "two_factor_tokens_userID_user_id_fk",
           "tableFrom": "two_factor_tokens",
-          "tableTo": "user",
           "columnsFrom": [
             "userID"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -287,7 +297,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.user": {
       "name": "user",
@@ -354,7 +367,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {
@@ -369,8 +385,14 @@
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "54f0c9ba-a7f1-4512-9e2a-bac12405fdd9",
+  "prevId": "04f4a0e2-4b15-4475-bc2c-177b5108b9bd",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }

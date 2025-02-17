@@ -2,6 +2,7 @@
 
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
+import { User } from "next-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,19 +13,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import { Suspense, useEffect, useState } from "react";
-import { LogOut, Moon, Settings, Sun, Truck, TruckIcon } from "lucide-react";
+import { Suspense, useEffect, useState, useCallback } from "react";
+import {
+  LogOut,
+  Moon,
+  Settings,
+  Sun,
+  Truck,
+  TruckIcon,
+  BarChart,
+  Package,
+  PenSquare,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { Switch } from "../ui/switch";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export const UserButton = ({ user }: Session) => {
+interface UserWithRole extends User {
+  role?: string;
+}
+
+export const UserButton = ({ user }: { user: UserWithRole }) => {
   const { setTheme, theme } = useTheme();
   const [checked, setChecked] = useState(false);
   const router = useRouter();
 
-  function setSwitchState() {
+  const setSwitchState = useCallback(() => {
     switch (theme) {
       case "dark":
         return setChecked(true);
@@ -33,11 +48,11 @@ export const UserButton = ({ user }: Session) => {
       case "system":
         return setChecked(false);
     }
-  }
+  }, [theme, setChecked]);
 
   useEffect(() => {
     setSwitchState();
-  }, []);
+  }, [setSwitchState]);
 
   if (user)
     return (
@@ -74,19 +89,57 @@ export const UserButton = ({ user }: Session) => {
           </div>
           <DropdownMenuSeparator />
 
+          {/* Admin sekce */}
+          {user.role === "admin" && (
+            <>
+              <DropdownMenuItem
+                onClick={() => router.push("/dashboard/analytics")}
+                className="group py-2 font-medium cursor-pointer"
+              >
+                <BarChart
+                  size={14}
+                  className="mr-3 group-hover:scale-110 transition-all duration-300 ease-in-out"
+                />
+                Analytics
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push("/dashboard/add-product")}
+                className="group py-2 font-medium cursor-pointer"
+              >
+                <PenSquare
+                  size={14}
+                  className="mr-3 group-hover:scale-110 transition-all duration-300 ease-in-out"
+                />
+                Create Product
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push("/dashboard/products")}
+                className="group py-2 font-medium cursor-pointer"
+              >
+                <Package
+                  size={14}
+                  className="mr-3 group-hover:scale-110 transition-all duration-300 ease-in-out"
+                />
+                Products
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
+
+          {/* Běžné uživatelské sekce */}
           <DropdownMenuItem
             onClick={() => router.push("/dashboard/orders")}
-            className="group py-2 font-medium cursor-pointer "
+            className="group py-2 font-medium cursor-pointer"
           >
             <TruckIcon
               size={14}
               className="mr-3 group-hover:translate-x-1 transition-all duration-300 ease-in-out"
-            />{" "}
-            My orders
+            />
+            My Orders
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => router.push("/dashboard/settings")}
-            className="group py-2 font-medium cursor-pointer  ease-in-out "
+            className="group py-2 font-medium cursor-pointer"
           >
             <Settings
               size={14}

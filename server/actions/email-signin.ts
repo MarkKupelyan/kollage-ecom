@@ -24,8 +24,8 @@ export const emailSignIn = action(
         where: eq(users.email, email),
       });
 
-      if (existingUser?.email !== email) {
-        return { error: "Email not  found" };
+      if (!existingUser) {
+        return { error: "Email not found" };
       }
 
       //If the user is not verified
@@ -70,13 +70,17 @@ export const emailSignIn = action(
         }
       }
 
-      await signIn("credentials", {
-        email,
-        password,
-        redirectTo: "/",
-      });
+      try {
+        await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
 
-      return { success: "User Signed In!" };
+        return { success: "User Signed In!" };
+      } catch (error) {
+        return { error: "Invalid credentials" };
+      }
     } catch (error) {
       if (error instanceof AuthError) {
         switch (error.type) {

@@ -9,6 +9,7 @@ import { eq } from "drizzle-orm";
 import { accounts, users } from "./schema";
 import bcrypt from "bcrypt";
 import Stripe from "stripe";
+import { AdapterAccount } from "next-auth/adapters";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db),
@@ -17,7 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     createUser: async ({ user }) => {
       const stripe = new Stripe(process.env.STRIPE_SECRET!, {
-        apiVersion: "2024-04-10",
+        apiVersion: "2025-01-27.acacia",
       });
       const customer = await stripe.customers.create({
         email: user.email!,
@@ -27,6 +28,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         .update(users)
         .set({ customerID: customer.id })
         .where(eq(users.id, user.id!));
+    },
+    signIn: async ({ user }) => {
+      // Vytvoření nebo aktualizace záznamu v accounts při každém přihlášení
+      if (user.email) {
+        const existingUser = await db.query.users.findFirst({
+          where: eq(users.email, user.email),
+        });
+
+        if (existingUser) {
+          const existingAccount = await db.query.accounts.findFirst({
+            where: eq(accounts.userId, existingUser.id),
+          });
+
+          if (!existingAccount) {
+            await db.insert(accounts).values({
+              userId: existingUser.id,
+              type: "credentials" as AdapterAccount["type"],
+              provider: "credentials",
+              providerAccountId: existingUser.id,
+              access_token: null,
+              token_type: "Bearer",
+              scope: "user",
+              expires_at: Math.floor(Date.now() / 1000) + 86400, // 24 hodin
+            });
+          }
+        }
+      }
     },
   },
   callbacks: {
@@ -43,6 +71,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.email = token.email as string;
         session.user.isOAuth = token.isOAuth as boolean;
         session.user.image = token.image as string;
+
+        // Kontrola a nastavení role
+        const dbUser = await db.query.users.findFirst({
+          where: eq(users.id, token.sub as string),
+        });
+        if (dbUser && dbUser.role) {
+          session.user.role = dbUser.role;
+        }
       }
       return session;
     },
@@ -89,7 +125,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (!user || !user.password) return null;
 
           const passwordMatch = await bcrypt.compare(password, user.password);
-          if (passwordMatch) return user;
+          if (passwordMatch) {
+            // Ensure account record exists
+            const existingAccount = await db.query.accounts.findFirst({
+              where: eq(accounts.userId, user.id),
+            });
+
+            if (!existingAccount) {
+              await db.insert(accounts).values({
+                userId: user.id,
+                type: "credentials" as AdapterAccount["type"],
+                provider: "credentials",
+                providerAccountId: user.id,
+                access_token: null,
+                token_type: "Bearer",
+                scope: "user",
+                expires_at: Math.floor(Date.now() / 1000) + 86400, // 24 hodin
+              });
+            }
+            return user;
+          }
         }
         return null;
       },

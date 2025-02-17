@@ -1,5 +1,4 @@
 import ProductList from "@/components/ProductList";
-import Filter from "@/components/Filter";
 import Image from "next/image";
 import { Suspense } from "react";
 import Algolia from "@/components/products/algolia";
@@ -8,6 +7,8 @@ import Products from "@/components/products/products";
 import { db } from "@/server";
 import Slider from "@/components/slider";
 import CategoryList from "@/components/CategoryList";
+import Filter from "@/components/Filter";
+import { ClientProducts } from "@/components/products/client-products";
 
 export default async function Home() {
   const data = await db.query.productVariants.findMany({
@@ -39,13 +40,7 @@ export default async function Home() {
 
       {/* FILTER + PRODUCTS */}
       <div className="mt-12">
-        {/* FILTER */}
-        <Filter />
-
-        {/* PRODUCTS */}
-        <div className="mt-8">
-          <Products variants={data} />
-        </div>
+        <ClientProducts variants={data} />
       </div>
     </div>
   );

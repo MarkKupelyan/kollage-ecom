@@ -6,6 +6,7 @@ import {
   Drawer,
   DrawerContent,
   DrawerHeader,
+  DrawerTitle,
   DrawerTrigger,
 } from "../ui/drawer";
 import { AnimatePresence, motion } from "framer-motion";
@@ -39,6 +40,7 @@ export default function CartDrawer() {
       </DrawerTrigger>
       <DrawerContent className="fixed bottom-0 left-0 right-0 h-[95vh] bg-[#fcf9f7]">
         <DrawerHeader className="relative">
+          <DrawerTitle className="sr-only">Nákupní košík</DrawerTitle>
           <button
             onClick={() => setCartOpen(false)}
             className="absolute right-4 top-4 p-2 hover:bg-[#faf3e0] rounded-full transition-colors"

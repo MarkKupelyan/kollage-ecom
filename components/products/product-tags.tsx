@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 export default function ProductTags() {
   const router = useRouter();
   const params = useSearchParams();
-  const tag = params.get("tag");
+  const tag = params?.get("tag");
 
   const [activeTag, setActiveTag] = useState(tag);
 

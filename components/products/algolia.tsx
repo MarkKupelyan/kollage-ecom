@@ -10,31 +10,28 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function Hit({ hit }: any) {
+  if (!hit || !hit.id || !hit.title || !hit.price) {
+    return null;
+  }
+
   const images = Array.isArray(hit.variantImages)
     ? hit.variantImages
     : [hit.variantImages];
 
   return (
-    <div className="p-4 hover:bg-secondary">
-      <Link
-        href={`/products/${hit.objectID}?id=${hit.objectID}&productID=${hit.id}&price=${hit.price}&title=${hit.title}&type=${hit.productType}&image=${images[0]}&variantID=${hit.objectID}`}
-      >
+    <div key={hit.id} className="p-4 hover:bg-secondary">
+      <Link href={`/products/${hit.productID}?variantId=${hit.id}`}>
         <div className="flex w-full items-center gap-4">
-          <Image
-            src={images[0] || "/default-image.png"}
-            alt={hit.title || "Product image"}
-            width={60}
-            height={60}
-          />
+          {images.length > 0 && (
+            <Image src={images[0]} alt={hit.title} width={60} height={60} />
+          )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm truncate">
-              {hit._highlightResult?.title?.value || "Default Title"}
-            </p>
-            <p className="text-sm text-gray-500 truncate">
-              {hit._highlightResult.productType.value}
+            <p className="text-sm truncate">{hit.title}</p>
+            <p className="text-xs text-gray-500">{hit.price} €</p>
+            <p className="text-xs text-gray-400">
+              {hit.material} - {hit.color}
             </p>
           </div>
-          <p className="text-sm font-medium whitespace-nowrap">${hit.price}</p>
         </div>
       </Link>
     </div>
@@ -50,7 +47,7 @@ export default function Algolia() {
       future={{
         preserveSharedStateOnUnmount: true,
       }}
-      indexName="products"
+      indexName="productVariants"
       searchClient={searchClient}
     >
       <div className="relative">

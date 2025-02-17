@@ -101,7 +101,6 @@ export const twoFactorTokens = pgTable(
     compoundKey: primaryKey({ columns: [vt.id, vt.token] }),
   })
 );
-
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   description: text("description").notNull(),
@@ -115,8 +114,14 @@ export const productVariants = pgTable("productVariants", {
   id: serial("id").primaryKey(),
   color: text("color").notNull(),
   productType: text("productType").notNull(),
+  material: text("material").notNull(),
+  stone: text("stone"),
+  category: text("category").notNull(),
+  collection: text("collection"),
+  size: text("size"),
+  price: real("price").notNull(),
   updated: timestamp("updated").defaultNow(),
-  productID: serial("productID")
+  productID: integer("productID") // ZMĚNA: Použij integer místo serial
     .notNull()
     .references(() => products.id, { onDelete: "cascade" }),
 });

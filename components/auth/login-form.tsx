@@ -46,12 +46,13 @@ export const LoginForm = () => {
   const [showTwoFactor, setShowTwoFactor] = useState(false);
 
   const { execute, status } = useAction(emailSignIn, {
-    onSuccess(data) {
-      if (data?.error) setError(data.error);
-      if (data?.success) {
-        setSuccess(data.success);
+    onSuccess(data: any) {
+      if (data?.data?.error) setError(data.data.error);
+      if (data?.data?.success) {
+        setSuccess(data.data.success);
+        router.push("/");
       }
-      if (data.twoFactor) setShowTwoFactor(true);
+      if (data?.data?.twoFactor) setShowTwoFactor(true);
     },
   });
 

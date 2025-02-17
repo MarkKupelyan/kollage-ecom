@@ -5,7 +5,6 @@ import "./globals.css";
 import AnimatedHeader from "@/components/navigation/animated-header";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import Toaster from "@/components/ui/toaster";
 import Footer from "@/components/footer/footer";
 import { SessionProvider } from "next-auth/react";
 
@@ -37,7 +36,6 @@ export default function RootLayout({
           <AnimatedHeader />
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="">
-              <Toaster />
               {children}
               <Footer />
             </div>

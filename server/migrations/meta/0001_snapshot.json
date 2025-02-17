@@ -1,5 +1,5 @@
 {
-  "version": "6",
+  "version": "7",
   "dialect": "postgresql",
   "tables": {
     "public.account": {
@@ -98,7 +98,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.email_tokens": {
       "name": "email_tokens",
@@ -140,7 +143,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.user": {
       "name": "user",
@@ -200,7 +206,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {
@@ -220,5 +229,9 @@
     "columns": {}
   },
   "id": "ec5fa03e-b1ce-4f90-9af6-c6b83eb427a8",
-  "prevId": "6bd96557-3590-4198-a1dc-445d6c74dc38"
+  "prevId": "6bd96557-3590-4198-a1dc-445d6c74dc38",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }

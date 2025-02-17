@@ -18,6 +18,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { MobileNav } from "./mobile-nav";
+import { UserButton } from "../navigation/user-button";
 
 const collections = [
   {
@@ -66,8 +67,8 @@ export default function Nav({ session }: { session: any }) {
 
   return (
     <header className="border-b">
-      <div className="container flex h-20 items-center justify-between">
-        <div className="flex items-center gap-4 w-1/3">
+      <div className="container flex h-20 items-center">
+        <div className="flex items-center gap-4 lg:w-1/3">
           <Sheet onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden p-2">
@@ -75,35 +76,41 @@ export default function Nav({ session }: { session: any }) {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-full max-w-full">
-              <MobileNav />
+              <MobileNav session={session} />
             </SheetContent>
           </Sheet>
 
           <MainNav />
         </div>
 
-        <div className="w-1/3 flex justify-center">
+        <div className="absolute left-1/2 transform -translate-x-1/2">
           <Link href="/">
             <Logo />
           </Link>
         </div>
 
-        <div className="flex items-center gap-4 w-1/3 justify-end">
+        <div className="flex items-center sm:gap-4 gap-2 lg:gap-8 ml-auto px-0 lg:px-2">
           <Button
             variant="ghost"
             size="icon"
-            className="p-2"
+            className="p-1 lg:p-2"
             onClick={() => setIsSearchOpen(!isSearchOpen)}
           >
-            <Search className="h-12 w-12" />
+            <Search className="h-7 w-7 lg:h-12 lg:w-12" />
           </Button>
 
-          <Link
-            href="/auth/login"
-            className="hidden md:flex p-2 bg-white text-slate-800 opacity-86 items-center gap-2"
-          >
-            <User className="h-7 w-7" />
-          </Link>
+          {session?.user ? (
+            <div className="hidden lg:block">
+              <UserButton user={session.user} />
+            </div>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="hidden lg:flex p-1 lg:p-2 bg-white text-slate-800 opacity-86 items-center"
+            >
+              <User className="h-7 w-7" />
+            </Link>
+          )}
 
           <div>
             <CartDrawer />
@@ -155,7 +162,7 @@ function MainNav() {
 
         <NavigationMenuItem>
           <NavigationMenuTrigger className="h-10 px-4">
-            WOMEN'S
+            WOMEN&apos;S
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4">
@@ -177,7 +184,7 @@ function MainNav() {
 
         <NavigationMenuItem>
           <NavigationMenuTrigger className="h-10 px-4">
-            MEN'S
+            MEN&apos;S
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4">

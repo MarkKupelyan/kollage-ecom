@@ -30,7 +30,7 @@ export default function Earnings({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const filter = searchParams.get("filter") || "week";
+  const filter = searchParams?.get("filter") || "week";
 
   const chartItems = totalOrders.map((order) => ({
     date: order.order.created!,

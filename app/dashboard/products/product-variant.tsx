@@ -29,7 +29,7 @@ import VariantImages from "./variant-images";
 import { useAction } from "next-safe-action/hooks";
 import { createVariant } from "@/server/actions/create-variant";
 import { toast } from "sonner";
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useEffect, useState, useCallback } from "react";
 import { deleteVariant } from "@/server/actions/delete-variant";
 
 type VariantProps = {
@@ -56,7 +56,7 @@ export const ProductVariant = forwardRef<HTMLDivElement, VariantProps>(
 
     const [open, setOpen] = useState(false);
 
-    const setEdit = () => {
+    const setEdit = useCallback(() => {
       if (!editMode) {
         form.reset();
         return;
@@ -80,11 +80,11 @@ export const ProductVariant = forwardRef<HTMLDivElement, VariantProps>(
           }))
         );
       }
-    };
+    }, [editMode, variant, form]);
 
     useEffect(() => {
       setEdit();
-    }, [variant]);
+    }, [setEdit]);
 
     const { execute, status } = useAction(createVariant, {
       onExecute() {

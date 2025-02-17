@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X, Search, ShoppingCart } from "lucide-react";
+import { Menu, X, Search, ShoppingCart, User } from "lucide-react";
+import { UserButton } from "../navigation/user-button";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -58,7 +59,7 @@ const categories = [
   },
 ];
 
-export function MobileNav() {
+export function MobileNav({ session }: { session: any }) {
   const [open, setOpen] = React.useState(false);
 
   const handleLinkClick = (href: string) => {
@@ -93,7 +94,9 @@ export function MobileNav() {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="womens">
-            <AccordionTrigger className="text-sm">WOMEN'S</AccordionTrigger>
+            <AccordionTrigger className="text-sm">
+              WOMEN&apos;S
+            </AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col space-y-2">
                 {categories.map((category) => (
@@ -109,7 +112,7 @@ export function MobileNav() {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="mens">
-            <AccordionTrigger className="text-sm">MEN'S</AccordionTrigger>
+            <AccordionTrigger className="text-sm">MEN&apos;S</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col space-y-2">
                 {categories.map((category) => (
@@ -133,13 +136,20 @@ export function MobileNav() {
           >
             GIFTS
           </Link>
-          <Link
-            href="/auth/login"
-            onClick={() => handleLinkClick("/auth/login")}
-            className="block text-sm font-medium"
-          >
-            LOGIN
-          </Link>
+          <div className="flex lg:hidden items-center gap-2">
+            {session?.user ? (
+              <UserButton user={session.user} />
+            ) : (
+              <Link
+                href="/auth/login"
+                onClick={() => handleLinkClick("/auth/login")}
+                className="flex items-center gap-2 text-sm font-medium"
+              >
+                <User className="h-5 w-5" />
+                <span>LOGIN</span>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </div>

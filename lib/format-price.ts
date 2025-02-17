@@ -1,6 +1,8 @@
-export default function formatPrice(price: number) {
-  return new Intl.NumberFormat("en", {
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat("cs-CZ", {
     style: "currency",
-    currency: "USD",
+    currency: "CZK",
   }).format(price);
-}
+};
+
+export default formatPrice;

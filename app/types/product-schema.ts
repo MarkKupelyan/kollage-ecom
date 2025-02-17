@@ -14,6 +14,21 @@ export const ProductSchema = z.object({
   stock_quantity: z.number().int().nonnegative({
     message: "Stock quantity must be a non-negative integer",
   }),
+  material: z.string().min(2, {
+    message: "Material must be at least 2 characters long",
+  }),
+  stone: z.string().optional(),
+  color: z.string().min(2, {
+    message: "Color must be at least 2 characters long",
+  }),
+  collection: z.string().optional(),
+  size: z.string().optional(),
+  category: z.string().min(2, {
+    message: "Category must be at least 2 characters long",
+  }),
+  productType: z.string().min(2, {
+    message: "Product type must be at least 2 characters long",
+  }),
 });
 
 export type zProductSchema = z.infer<typeof ProductSchema>;

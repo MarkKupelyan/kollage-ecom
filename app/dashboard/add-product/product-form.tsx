@@ -29,7 +29,7 @@ import { createProduct } from "@/server/actions/create-product";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { getProduct } from "@/server/actions/get-product";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
 export default function ProductForm() {
   const form = useForm<zProductSchema>({
@@ -39,38 +39,55 @@ export default function ProductForm() {
       description: "",
       price: 0,
       stock_quantity: 0,
+      material: "",
+      stone: "",
+      color: "",
+      collection: "",
+      size: "",
+      category: "",
+      productType: "",
     },
     mode: "onChange",
   });
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const editMode = searchParams.get("id");
+  const editMode = searchParams?.get("id");
 
-  const checkProduct = async (id: number) => {
-    if (editMode) {
-      const data = await getProduct(id);
-      if (data.error) {
-        toast.error(data.error);
-        router.push("/dashboard/products");
-        return;
+  const checkProduct = useCallback(
+    async (id: number) => {
+      if (editMode) {
+        const data = await getProduct(id);
+        if (data.error) {
+          toast.error(data.error);
+          router.push("/dashboard/products");
+          return;
+        }
+        if (data.success) {
+          const id = parseInt(editMode);
+          form.setValue("title", data.success.title);
+          form.setValue("description", data.success.description);
+          form.setValue("price", data.success.price);
+          form.setValue("stock_quantity", data.success.stock_quantity);
+          form.setValue("material", data.success.material);
+          form.setValue("stone", data.success.stone);
+          form.setValue("color", data.success.color);
+          form.setValue("collection", data.success.collection);
+          form.setValue("size", data.success.size);
+          form.setValue("category", data.success.category);
+          form.setValue("productType", data.success.productType);
+          form.setValue("id", id);
+        }
       }
-      if (data.success) {
-        const id = parseInt(editMode);
-        form.setValue("title", data.success.title);
-        form.setValue("description", data.success.description);
-        form.setValue("price", data.success.price);
-        form.setValue("stock_quantity", data.success.stock_quantity);
-        form.setValue("id", id);
-      }
-    }
-  };
+    },
+    [editMode, router, form]
+  );
 
   useEffect(() => {
     if (editMode) {
       checkProduct(parseInt(editMode));
     }
-  }, []);
+  }, [editMode, checkProduct]);
 
   const { execute, status } = useAction(createProduct, {
     onSuccess: (data) => {
@@ -93,7 +110,6 @@ export default function ProductForm() {
   });
 
   async function onSubmit(values: zProductSchema) {
-    // Konverze hodnoty stock_quantity na číslo
     values.stock_quantity = Number(values.stock_quantity);
     execute(values);
   }
@@ -147,7 +163,7 @@ export default function ProductForm() {
                     <div className="flex items-center gap-2">
                       <DollarSign
                         size={36}
-                        className="p-2 bg-muted  rounded-md"
+                        className="p-2 bg-muted rounded-md"
                       />
                       <Input
                         {...field}
@@ -176,6 +192,97 @@ export default function ProductForm() {
                       min={0}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="material"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Material</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter material" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="stone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Stone (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter stone type" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="color"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Color</FormLabel>
+                  <FormControl>
+                    <Input type="color" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="collection"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Collection (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter collection name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="size"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Size (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter size" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter category" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="productType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Type</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter product type" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

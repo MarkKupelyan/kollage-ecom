@@ -5,15 +5,23 @@ import { useState, useEffect } from "react";
 import { Slide } from "@/components/ui/slide";
 import { ChevronDown, X } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "./ui/slider";
+import { Badge } from "@/components/ui/badge";
+import formatPrice from "@/lib/format-price";
 
-export default function Filter() {
+interface FilterProps {
+  onProductsUpdate: (products: any[]) => void;
+}
+
+export default function Filter({ onProductsUpdate }: FilterProps) {
   const router = useRouter();
   const params = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [sortOption, setSortOption] = useState("newest");
   const [activeFilters, setActiveFilters] = useState({
     material: "",
-    priceRange: [0, 1000],
+    priceRange: [0, 1000] as [number, number],
     color: "",
     stone: "",
     category: "",
@@ -21,6 +29,8 @@ export default function Filter() {
     collection: "",
   });
   const [resultsCount, setResultsCount] = useState(387);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Načtení filtrů z localStorage při inicializaci
   useEffect(() => {
@@ -30,17 +40,42 @@ export default function Filter() {
     }
   }, []);
 
-  // Uložení filtrů do localStorage při změně
+  // Uložení filtrů do localStorage při změně a volání API
   useEffect(() => {
     localStorage.setItem("filters", JSON.stringify(activeFilters));
-    // Zde by byla logika pro získání počtu výsledků z API
-    calculateResults();
+    fetchFilteredProducts();
   }, [activeFilters]);
 
-  const calculateResults = () => {
-    // Simulace API volání - v reálné aplikaci by zde byl skutečný API call
-    const count = Object.values(activeFilters).filter((value) => value).length;
-    setResultsCount(count * 10); // Pouze pro demonstraci
+  const fetchFilteredProducts = async () => {
+    try {
+      setIsLoading(true);
+      const queryParams = new URLSearchParams();
+
+      Object.entries(activeFilters).forEach(([key, value]) => {
+        if (key === "priceRange") {
+          const [min, max] = value as [number, number];
+          if (min > 0) queryParams.set("minPrice", min.toString());
+          if (max < 1000) queryParams.set("maxPrice", max.toString());
+        } else if (value && typeof value === "string") {
+          queryParams.set(key, value);
+        }
+      });
+
+      const response = await fetch(
+        `/api/product/filter?${queryParams.toString()}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch filtered products");
+      }
+
+      const data = await response.json();
+      setResultsCount(data.length);
+      onProductsUpdate(data);
+    } catch (error) {
+      console.error("Error fetching filtered products:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleSection = (section: string) => {
@@ -59,6 +94,14 @@ export default function Filter() {
     });
   };
 
+  const removeFilter = (key: keyof typeof activeFilters) => {
+    if (key === "priceRange") {
+      setActiveFilters({ ...activeFilters, [key]: [0, 1000] });
+    } else {
+      setActiveFilters({ ...activeFilters, [key]: "" });
+    }
+  };
+
   // Efekt pro zakázání scrollování na <body> při otevření menu
   useEffect(() => {
     if (isFilterOpen) {
@@ -67,7 +110,6 @@ export default function Filter() {
       document.body.style.overflow = "auto";
     }
 
-    // Cleanup funkce pro obnovení scrollování při unmountu
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -111,6 +153,15 @@ export default function Filter() {
     ],
   };
 
+  // Funkce pro změnu řazení
+  const handleSortChange = (value: string) => {
+    setSortOption(value);
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.set("sort", value);
+    router.push(`?${currentParams.toString()}`);
+    setIsSortOpen(false);
+  };
+
   return (
     <>
       {/* Overlay */}
@@ -124,33 +175,76 @@ export default function Filter() {
       {/* Desktop a mobilní filter menu */}
       <div
         className={`
-        fixed inset-0 bg-white z-50
-        ${isFilterOpen ? "translate-x-0" : "-translate-x-full"}
-        transition-transform duration-300 ease-in-out
-        lg:w-1/3
-      `}
+          fixed inset-0 bg-white z-50
+          ${isFilterOpen ? "translate-x-0" : "-translate-x-full"}
+          transition-transform duration-300 ease-in-out
+          lg:w-1/3
+        `}
       >
         {/* Horní lišta */}
         <div className="flex justify-between items-center px-6 py-4 border-b sticky top-0 bg-white">
-          <span className="text-base font-normal tracking-[0.1em]">
-            FILTERS
-          </span>
+          <span className="text-base font-normal tracking-[0.1em]">FILTRY</span>
           <button onClick={() => setIsFilterOpen(false)}>
             <X className="h-5 w-5" />
           </button>
         </div>
 
+        {/* Aktivní filtry */}
+        {Object.entries(activeFilters).some(
+          ([key, value]) =>
+            (key === "priceRange" &&
+              Array.isArray(value) &&
+              (value[0] > 0 || value[1] < 1000)) ||
+            (key !== "priceRange" && value)
+        ) && (
+          <div className="px-6 py-4 border-b">
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(activeFilters).map(([key, value]) => {
+                if (key === "priceRange") {
+                  const [min, max] = value as [number, number];
+                  if (min > 0 || max < 1000) {
+                    return (
+                      <Badge
+                        key={key}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        {formatPrice(min)} - {formatPrice(max)}
+                        <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() =>
+                            removeFilter(key as keyof typeof activeFilters)
+                          }
+                        />
+                      </Badge>
+                    );
+                  }
+                } else if (value) {
+                  return (
+                    <Badge
+                      key={key}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      {value}
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() =>
+                          removeFilter(key as keyof typeof activeFilters)
+                        }
+                      />
+                    </Badge>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Obsah filtrů */}
         <div className="overflow-y-auto h-[calc(100vh-120px)] lg:h-[calc(100vh-180px)]">
           <div className="divide-y border-b">
-            {/* Pick Up */}
-            <div className="px-6 py-4 flex items-center justify-between">
-              <span className="text-sm tracking-[0.1em] font-normal">
-                PICK UP
-              </span>
-              <Switch />
-            </div>
-
             {/* Material */}
             <div className="px-6 py-4">
               <button
@@ -158,7 +252,7 @@ export default function Filter() {
                 className="flex items-center justify-between w-full"
               >
                 <span className="text-sm tracking-[0.1em] font-normal">
-                  MATERIAL
+                  MATERIÁL
                 </span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
@@ -185,7 +279,11 @@ export default function Filter() {
                           material: material.name,
                         })
                       }
-                      className="block w-full text-left text-sm hover:opacity-70"
+                      className={`block w-full text-left text-sm hover:opacity-70 ${
+                        activeFilters.material === material.name
+                          ? "font-semibold"
+                          : ""
+                      }`}
                     >
                       {material.name} ({material.count})
                     </button>
@@ -201,7 +299,7 @@ export default function Filter() {
                 className="flex items-center justify-between w-full"
               >
                 <span className="text-sm tracking-[0.1em] font-normal">
-                  PRICE
+                  CENA
                 </span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
@@ -209,6 +307,25 @@ export default function Filter() {
                   }`}
                 />
               </button>
+              {openSection === "price" && (
+                <div className="mt-6 px-2">
+                  <Slider
+                    defaultValue={activeFilters.priceRange}
+                    max={1000}
+                    step={10}
+                    onValueChange={(value: [number, number]) =>
+                      setActiveFilters({
+                        ...activeFilters,
+                        priceRange: value,
+                      })
+                    }
+                  />
+                  <div className="mt-2 flex justify-between text-sm">
+                    <span>{formatPrice(activeFilters.priceRange[0])}</span>
+                    <span>{formatPrice(activeFilters.priceRange[1])}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Color */}
@@ -217,7 +334,9 @@ export default function Filter() {
                 onClick={() => toggleSection("color")}
                 className="flex items-center justify-between w-full"
               >
-                <span className="text-sm tracking-widest">COLOR</span>
+                <span className="text-sm tracking-[0.1em] font-normal">
+                  BARVA
+                </span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
                     openSection === "color" ? "rotate-180" : ""
@@ -232,7 +351,9 @@ export default function Filter() {
                       onClick={() =>
                         setActiveFilters({ ...activeFilters, color: item.name })
                       }
-                      className="block w-full text-left py-1 text-sm"
+                      className={`block w-full text-left text-sm hover:opacity-70 ${
+                        activeFilters.color === item.name ? "font-semibold" : ""
+                      }`}
                     >
                       {item.name} ({item.count})
                     </button>
@@ -247,7 +368,9 @@ export default function Filter() {
                 onClick={() => toggleSection("stone")}
                 className="flex items-center justify-between w-full"
               >
-                <span className="text-sm tracking-widest">STONE</span>
+                <span className="text-sm tracking-[0.1em] font-normal">
+                  KÁMEN
+                </span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
                     openSection === "stone" ? "rotate-180" : ""
@@ -262,7 +385,9 @@ export default function Filter() {
                       onClick={() =>
                         setActiveFilters({ ...activeFilters, stone: item.name })
                       }
-                      className="block w-full text-left py-1 text-sm"
+                      className={`block w-full text-left text-sm hover:opacity-70 ${
+                        activeFilters.stone === item.name ? "font-semibold" : ""
+                      }`}
                     >
                       {item.name} ({item.count})
                     </button>
@@ -277,7 +402,9 @@ export default function Filter() {
                 onClick={() => toggleSection("category")}
                 className="flex items-center justify-between w-full"
               >
-                <span className="text-sm tracking-widest">CATEGORY</span>
+                <span className="text-sm tracking-[0.1em] font-normal">
+                  KATEGORIE
+                </span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
                     openSection === "category" ? "rotate-180" : ""
@@ -295,37 +422,11 @@ export default function Filter() {
                           category: item.name,
                         })
                       }
-                      className="block w-full text-left py-1 text-sm"
-                    >
-                      {item.name} ({item.count})
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Size */}
-            <div className="px-6 py-4">
-              <button
-                onClick={() => toggleSection("size")}
-                className="flex items-center justify-between w-full"
-              >
-                <span className="text-sm tracking-widest">SIZE</span>
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${
-                    openSection === "size" ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {openSection === "size" && (
-                <div className="mt-4 space-y-2">
-                  {filterOptions.size.map((item) => (
-                    <button
-                      key={item.name}
-                      onClick={() =>
-                        setActiveFilters({ ...activeFilters, size: item.name })
-                      }
-                      className="block w-full text-left py-1 text-sm"
+                      className={`block w-full text-left text-sm hover:opacity-70 ${
+                        activeFilters.category === item.name
+                          ? "font-semibold"
+                          : ""
+                      }`}
                     >
                       {item.name} ({item.count})
                     </button>
@@ -340,7 +441,9 @@ export default function Filter() {
                 onClick={() => toggleSection("collection")}
                 className="flex items-center justify-between w-full"
               >
-                <span className="text-sm tracking-widest">COLLECTION</span>
+                <span className="text-sm tracking-[0.1em] font-normal">
+                  KOLEKCE
+                </span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
                     openSection === "collection" ? "rotate-180" : ""
@@ -358,7 +461,11 @@ export default function Filter() {
                           collection: item.name,
                         })
                       }
-                      className="block w-full text-left py-1 text-sm"
+                      className={`block w-full text-left text-sm hover:opacity-70 ${
+                        activeFilters.collection === item.name
+                          ? "font-semibold"
+                          : ""
+                      }`}
                     >
                       {item.name} ({item.count})
                     </button>
@@ -375,13 +482,13 @@ export default function Filter() {
             onClick={clearAllFilters}
             className="text-sm tracking-[0.1em] font-normal border border-black px-8 py-3"
           >
-            CLEAR ALL
+            VYMAZAT VŠE
           </button>
           <button
             onClick={() => setIsFilterOpen(false)}
             className="bg-black text-white px-8 py-3 text-sm tracking-[0.1em] font-normal"
           >
-            VIEW RESULTS ({resultsCount})
+            ZOBRAZIT VÝSLEDKY ({resultsCount})
           </button>
         </div>
       </div>
@@ -393,10 +500,7 @@ export default function Filter() {
             onClick={() => setIsFilterOpen(true)}
             className="flex items-center gap-2 text-sm tracking-[0.1em] font-normal"
           >
-            FILTERS <ChevronDown className="h-4 w-4" />
-          </button>
-          <button className="flex items-center gap-2 text-sm tracking-[0.1em] font-normal">
-            SORT BY <ChevronDown className="h-4 w-4" />
+            FILTRY <ChevronDown className="h-4 w-4" />
           </button>
         </div>
       </div>

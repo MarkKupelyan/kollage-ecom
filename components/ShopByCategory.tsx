@@ -73,14 +73,14 @@ const ShopByCategory = () => {
                     href={category.womenLink}
                     className="text-xs tracking-widest hover:text-gray-600 transition-colors uppercase relative group"
                   >
-                    <span>Shop Women's</span>
+                    <span>Shop Women&apos;s</span>
                     <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-black"></span>
                   </Link>
                   <Link
                     href={category.menLink}
                     className="text-xs tracking-widest hover:text-gray-600 transition-colors uppercase relative group"
                   >
-                    <span>Shop Men's</span>
+                    <span>Shop Men&apos;s</span>
                     <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-black"></span>
                   </Link>
                 </div>

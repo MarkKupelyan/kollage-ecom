@@ -67,14 +67,14 @@ export default function PaymentForm({ totalPrice }: { totalPrice: number }) {
       setCartOpen(false);
       return;
     }
-    if (data?.success) {
+    if (data?.data) {
       const { error } = await stripe.confirmPayment({
         elements,
-        clientSecret: data.success.clientSecretID!,
+        clientSecret: data.data.clientSecretID!,
         redirect: "if_required",
         confirmParams: {
           return_url: "http://localhost:3000/success",
-          receipt_email: data.success.user as string,
+          receipt_email: data.data.user as string,
         },
       });
       if (error) {
@@ -85,7 +85,7 @@ export default function PaymentForm({ totalPrice }: { totalPrice: number }) {
         setIsLoading(false);
         execute({
           status: "pending",
-          paymentIntentID: data.success.paymentIntentID,
+          paymentIntentID: data.data.paymentIntentID,
           total: totalPrice,
           products: cart.map((item) => ({
             productID: item.id,

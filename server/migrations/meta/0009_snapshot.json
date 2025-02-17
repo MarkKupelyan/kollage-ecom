@@ -1,7 +1,5 @@
 {
-  "id": "8c1a0ce6-1c2b-4fc7-a8d3-07148090b1c2",
-  "prevId": "7c9762f8-d6b4-47bf-8289-de22a01ea92b",
-  "version": "6",
+  "version": "7",
   "dialect": "postgresql",
   "tables": {
     "public.account": {
@@ -80,15 +78,15 @@
         "account_userId_user_id_fk": {
           "name": "account_userId_user_id_fk",
           "tableFrom": "account",
-          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -100,7 +98,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.email_tokens": {
       "name": "email_tokens",
@@ -142,7 +143,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.orderProduct": {
       "name": "orderProduct",
@@ -184,45 +188,48 @@
         "orderProduct_productVariantID_productVariants_id_fk": {
           "name": "orderProduct_productVariantID_productVariants_id_fk",
           "tableFrom": "orderProduct",
-          "tableTo": "productVariants",
           "columnsFrom": [
             "productVariantID"
           ],
+          "tableTo": "productVariants",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "orderProduct_productID_products_id_fk": {
           "name": "orderProduct_productID_products_id_fk",
           "tableFrom": "orderProduct",
-          "tableTo": "products",
           "columnsFrom": [
             "productID"
           ],
+          "tableTo": "products",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "orderProduct_orderID_orders_id_fk": {
           "name": "orderProduct_orderID_orders_id_fk",
           "tableFrom": "orderProduct",
-          "tableTo": "orders",
           "columnsFrom": [
             "orderID"
           ],
+          "tableTo": "orders",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.orders": {
       "name": "orders",
@@ -277,19 +284,22 @@
         "orders_userID_user_id_fk": {
           "name": "orders_userID_user_id_fk",
           "tableFrom": "orders",
-          "tableTo": "user",
           "columnsFrom": [
             "userID"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.password_reset_tokens": {
       "name": "password_reset_tokens",
@@ -331,7 +341,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.productVariants": {
       "name": "productVariants",
@@ -374,19 +387,22 @@
         "productVariants_productID_products_id_fk": {
           "name": "productVariants_productID_products_id_fk",
           "tableFrom": "productVariants",
-          "tableTo": "products",
           "columnsFrom": [
             "productID"
           ],
+          "tableTo": "products",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.products": {
       "name": "products",
@@ -434,7 +450,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.reviews": {
       "name": "reviews",
@@ -480,50 +499,69 @@
       },
       "indexes": {
         "productIdx": {
-          "name": "productIdx",
           "columns": [
-            "productID"
+            {
+              "expression": "productID",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "with": {},
+          "name": "productIdx",
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         },
         "userIdx": {
-          "name": "userIdx",
           "columns": [
-            "userID"
+            {
+              "expression": "userID",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "with": {},
+          "name": "userIdx",
+          "isUnique": false,
+          "method": "btree",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "reviews_userID_user_id_fk": {
           "name": "reviews_userID_user_id_fk",
           "tableFrom": "reviews",
-          "tableTo": "user",
           "columnsFrom": [
             "userID"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "reviews_productID_products_id_fk": {
           "name": "reviews_productID_products_id_fk",
           "tableFrom": "reviews",
-          "tableTo": "products",
           "columnsFrom": [
             "productID"
           ],
+          "tableTo": "products",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.two_factor_tokens": {
       "name": "two_factor_tokens",
@@ -565,15 +603,15 @@
         "two_factor_tokens_userID_user_id_fk": {
           "name": "two_factor_tokens_userID_user_id_fk",
           "tableFrom": "two_factor_tokens",
-          "tableTo": "user",
           "columnsFrom": [
             "userID"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -585,7 +623,10 @@
           ]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.user": {
       "name": "user",
@@ -652,7 +693,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.variantImages": {
       "name": "variantImages",
@@ -700,19 +744,22 @@
         "variantImages_variantID_productVariants_id_fk": {
           "name": "variantImages_variantID_productVariants_id_fk",
           "tableFrom": "variantImages",
-          "tableTo": "productVariants",
           "columnsFrom": [
             "variantID"
           ],
+          "tableTo": "productVariants",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
     "public.variantTags": {
       "name": "variantTags",
@@ -742,19 +789,22 @@
         "variantTags_variantID_productVariants_id_fk": {
           "name": "variantTags_variantID_productVariants_id_fk",
           "tableFrom": "variantTags",
-          "tableTo": "productVariants",
           "columnsFrom": [
             "variantID"
           ],
+          "tableTo": "productVariants",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {
@@ -769,8 +819,14 @@
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "8c1a0ce6-1c2b-4fc7-a8d3-07148090b1c2",
+  "prevId": "7c9762f8-d6b4-47bf-8289-de22a01ea92b",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }

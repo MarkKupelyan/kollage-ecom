@@ -103,7 +103,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
               <ProductPick
                 key={prodVariant.id}
                 productID={variant.productID}
-                productType={prodVariant.productType}
+                productType={prodVariant.material}
                 id={prodVariant.id}
                 color={prodVariant.color}
                 price={variant.product.price}
@@ -117,7 +117,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
             productID={variant.product.id}
             variantID={variant.id}
             title={variant.product.title}
-            type={variant.product.productVariants[0]?.productType}
+            type={variant.product.productVariants[0]?.material}
             price={variant.product.price}
             image={variant.product.productVariants[0]?.variantImages[0]?.url}
             disabled={!isInStock}
